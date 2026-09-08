@@ -1,0 +1,39 @@
+@model List<SchoolInventoryManagement.BLL.DTOs.BranchDTO>
+@{
+    ViewData["Title"] = "Branches";
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<h2>Branches</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">+ New Branch</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Contact</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var branch in Model)
+        {
+            <tr>
+                <td>@branch.BranchName</td>
+                <td>@branch.Address</td>
+                <td>@branch.ContactInfo</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@branch.BranchID">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@branch.BranchID" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Delete?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

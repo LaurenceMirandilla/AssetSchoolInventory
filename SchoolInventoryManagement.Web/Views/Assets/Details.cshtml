@@ -1,0 +1,77 @@
+﻿@model SchoolInventoryManagement.BLL.DTOs.AssetResponseDTO
+@{
+    ViewData["Title"] = Model.AssetName;
+}
+
+<h2>@Model.AssetName</h2>
+<p class="text-muted">@Model.AssetCode</p>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Model</dt>
+    <dd class="col-sm-9">@Model.ModelName (@Model.CategoryName)</dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">@Model.Status</dd>
+
+    <dt class="col-sm-3">Condition</dt>
+    <dd class="col-sm-9">@Model.Condition</dd>
+
+    <dt class="col-sm-3">Serial Number</dt>
+    <dd class="col-sm-9">@(Model.SerialNumber ?? "—")</dd>
+
+    <dt class="col-sm-3">Location</dt>
+    <dd class="col-sm-9">@(Model.CurrentLocationName ?? "—")</dd>
+
+    <dt class="col-sm-3">Department</dt>
+    <dd class="col-sm-9">@(Model.DepartmentName ?? "—")</dd>
+
+    <dt class="col-sm-3">Branch</dt>
+    <dd class="col-sm-9">@Model.BranchName</dd>
+
+    <dt class="col-sm-3">Assigned To</dt>
+    <dd class="col-sm-9">@(Model.AssignedUserName ?? "Not assigned")</dd>
+
+    <dt class="col-sm-3">Acquisition Date</dt>
+    <dd class="col-sm-9">@(Model.AcquisitionDate?.ToString("MMM d, yyyy") ?? "—")</dd>
+
+    <dt class="col-sm-3">Acquisition Cost</dt>
+    <dd class="col-sm-9">@(Model.AcquisitionCost?.ToString("C") ?? "—")</dd>
+
+    <dt class="col-sm-3">Warranty</dt>
+    <dd class="col-sm-9">@(Model.WarrantyInformation ?? "—")</dd>
+
+    <dt class="col-sm-3">Description</dt>
+    <dd class="col-sm-9">@(Model.Description ?? "—")</dd>
+</dl>
+
+@if (User.IsInRole("Asset Officer") || User.IsInRole("Administrator"))
+{
+    <a asp-action="Edit" asp-route-id="@Model.AssetID" class="btn btn-primary">Edit</a>
+    <a asp-action="History" asp-route-id="@Model.AssetID" class="btn btn-outline-secondary">View History</a>
+
+    @if (Model.Status == SchoolInventoryManagement.DAL.Entities.Enums.AssetStatus.Disposed)
+    {
+        <form asp-action="Restore" asp-route-id="@Model.AssetID" method="post" class="d-inline" onsubmit="return confirm('Restore this asset to Available?');">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="rowVersionBase64" value="@Convert.ToBase64String(Model.RowVersion)" />
+            <button type="submit" class="btn btn-success">Restore</button>
+        </form>
+    }
+    else if (Model.Status == SchoolInventoryManagement.DAL.Entities.Enums.AssetStatus.Available)
+    {
+        <a asp-action="Dispose" asp-route-id="@Model.AssetID" class="btn btn-danger">Dispose</a>
+        <a asp-controller="AssetAssignments" asp-action="Assign" asp-route-id="@Model.AssetID" class="btn btn-success">Assign</a>
+        <a asp-controller="AssetMovements" asp-action="Transfer" asp-route-id="@Model.AssetID" class="btn btn-info">Transfer</a>
+    }
+    else if (Model.Status == SchoolInventoryManagement.DAL.Entities.Enums.AssetStatus.Assigned && Model.ActiveAssignmentID.HasValue)
+    {
+        <a asp-controller="AssetAssignments" asp-action="Return" asp-route-id="@Model.ActiveAssignmentID" class="btn btn-warning">Return</a>
+    }
+}
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

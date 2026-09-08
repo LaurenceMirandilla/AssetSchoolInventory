@@ -1,0 +1,981 @@
+/* ==========================================================================
+   School Inventory Management — application theme
+   --------------------------------------------------------------------------
+   Layered on top of Bootstrap 5.1. Bootstrap 5.1 predates per-component CSS
+   variables (--bs-btn-bg and friends arrived in 5.3), so components are
+   overridden explicitly here rather than by retinting a variable.
+
+   Written against the markup that already exists — no view changes are
+   required for anything in this file except the .status-pill block, which
+   is opt-in and documented where it is defined.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. Design tokens
+   ========================================================================== */
+
+:root {
+    /* Neutrals */
+    --si-canvas: #f4f6f9;
+    --si-surface: #ffffff;
+    --si-surface-sunken: #f8fafc;
+    --si-border: #dde3ea;
+    --si-border-strong: #c6d0db;
+    /* Text */
+    --si-ink: #16202e;
+    --si-body: #2c3a4b;
+    --si-muted: #64748b;
+    /* Brand + intent. Every one of these carries at least 4.5:1 against
+       white, so white button text on them is readable. */
+    --si-primary: #1b5e9c;
+    --si-primary-hover: #164e83;
+    --si-primary-tint: #e9f0f7;
+    --si-primary-border: #c3d8ea;
+    --si-success: #196b43;
+    --si-success-hover: #145737;
+    --si-success-tint: #e7f3ec;
+    --si-success-border: #bcdcc8;
+    --si-danger: #b4232a;
+    --si-danger-hover: #971d23;
+    --si-danger-tint: #fbeaea;
+    --si-danger-border: #efc4c5;
+    --si-warning: #9a6400;
+    --si-warning-hover: #815300;
+    --si-warning-tint: #fdf3e2;
+    --si-warning-border: #ecd6ab;
+    --si-info: #146c7e;
+    --si-info-hover: #105866;
+    --si-info-tint: #e6f2f4;
+    --si-info-border: #b8d8de;
+    /* Shape + depth */
+    --si-radius: 8px;
+    --si-radius-sm: 5px;
+    --si-radius-pill: 999px;
+    --si-shadow-sm: 0 1px 2px rgba(22, 32, 46, .06);
+    --si-shadow: 0 1px 3px rgba(22, 32, 46, .08), 0 1px 2px rgba(22, 32, 46, .04);
+    --si-shadow-lg: 0 4px 16px rgba(22, 32, 46, .10);
+    --si-focus-ring: 0 0 0 3px rgba(27, 94, 156, .28);
+    --si-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --si-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+
+/* ==========================================================================
+   2. Base
+   ========================================================================== */
+
+html {
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    /* Sticky footer without absolute positioning: body's three children are
+       <header>, .container and <footer>, so a column flexbox does the job
+       and the footer stays put on short pages. */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    font-family: var(--si-font);
+    color: var(--si-body);
+    background-color: var(--si-canvas);
+    line-height: 1.55;
+}
+
+    body > .container {
+        flex: 1 0 auto;
+        width: 100%;
+        max-width: 1180px;
+        padding-top: .5rem;
+        padding-bottom: 2.5rem;
+    }
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--si-ink);
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+
+a {
+    color: var(--si-primary);
+    text-decoration: none;
+}
+
+    a:hover,
+    a:focus-visible {
+        color: var(--si-primary-hover);
+        text-decoration: underline;
+    }
+
+strong {
+    font-weight: 600;
+    color: var(--si-ink);
+}
+
+code, kbd, pre, samp {
+    font-family: var(--si-font-mono);
+}
+
+/* Bootstrap's .text-muted is used all over the views for secondary copy. */
+.text-muted {
+    color: var(--si-muted) !important;
+}
+
+::selection {
+    background: var(--si-primary-tint);
+    color: var(--si-ink);
+}
+
+
+/* ==========================================================================
+   3. Focus visibility
+   Replaces the default template's white-halo focus ring, which disappeared
+   against the tinted page background.
+   ========================================================================== */
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    box-shadow: var(--si-focus-ring);
+    outline: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--si-primary);
+    outline-offset: 2px;
+    border-radius: var(--si-radius-sm);
+}
+
+
+/* ==========================================================================
+   4. Navbar
+   Matches .navbar.navbar-light.bg-white.border-bottom.box-shadow in _Layout.
+   ========================================================================== */
+
+/* .box-shadow is a leftover class from the ASP.NET template that nothing
+   defines any more — define it rather than leave a dead hook in the markup. */
+.box-shadow {
+    box-shadow: var(--si-shadow-sm);
+}
+
+.navbar {
+    background-color: var(--si-surface) !important;
+    border-bottom: 1px solid var(--si-border) !important;
+    box-shadow: var(--si-shadow-sm);
+    padding-top: .55rem;
+    padding-bottom: .55rem;
+}
+
+    .navbar .container-fluid {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+.navbar-brand {
+    font-weight: 650;
+    font-size: 1.02rem;
+    color: var(--si-ink) !important;
+    letter-spacing: -.015em;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+    /* A small mark before the brand text, so the header reads as a product
+   rather than a bare link. Purely decorative, hidden from screen readers. */
+    .navbar-brand::before {
+        content: "";
+        width: 1.45rem;
+        height: 1.45rem;
+        border-radius: var(--si-radius-sm);
+        background: linear-gradient(135deg, var(--si-primary), var(--si-info));
+        flex: 0 0 auto;
+    }
+
+.navbar-nav .nav-link,
+.navbar-nav .nav-link.text-dark {
+    color: var(--si-body) !important;
+    font-size: .935rem;
+    font-weight: 500;
+    padding: .4rem .7rem;
+    border-radius: var(--si-radius-sm);
+    transition: background-color .12s ease, color .12s ease;
+}
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.text-dark:hover,
+    .navbar-nav .nav-link:focus-visible {
+        color: var(--si-primary) !important;
+        background-color: var(--si-primary-tint);
+        text-decoration: none;
+    }
+
+/* The "Logged in as ..." block on the right of the nav. */
+.navbar-nav .nav-item > span.text-dark {
+    color: var(--si-muted) !important;
+    font-size: .855rem;
+}
+
+    .navbar-nav .nav-item > span.text-dark strong {
+        color: var(--si-ink);
+    }
+
+.navbar-toggler {
+    border-color: var(--si-border-strong);
+    padding: .3rem .55rem;
+}
+
+    .navbar-toggler:focus {
+        box-shadow: var(--si-focus-ring);
+    }
+
+@media (max-width: 575.98px) {
+    .navbar-collapse {
+        padding-top: .5rem;
+        border-top: 1px solid var(--si-border);
+        margin-top: .5rem;
+    }
+
+    .navbar-nav .nav-item > span.text-dark {
+        padding: .35rem .7rem;
+        display: block;
+    }
+}
+
+
+/* ==========================================================================
+   5. Page headings
+   Every view opens with an <h2>, most follow it with a muted <p> subtitle.
+   ========================================================================== */
+
+main > h2,
+main > .d-flex > h2 {
+    font-size: 1.5rem;
+    margin: .25rem 0 .35rem;
+}
+
+    main > h2 + p.text-muted {
+        margin-top: -.15rem;
+        margin-bottom: 1.25rem;
+        font-size: .92rem;
+    }
+
+/* Section headings inside the asset history timeline. */
+main > h4 {
+    font-size: 1.05rem;
+    margin-top: 2rem;
+    margin-bottom: .6rem;
+    padding-bottom: .4rem;
+    border-bottom: 1px solid var(--si-border);
+}
+
+/* The heading + primary-action rows (Users, My Requests). */
+main > .d-flex.justify-content-between {
+    margin-bottom: 1.1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+
+/* ==========================================================================
+   6. Tables
+   ========================================================================== */
+
+.table {
+    --bs-table-striped-bg: var(--si-surface-sunken);
+    background-color: var(--si-surface);
+    border: 1px solid var(--si-border);
+    border-radius: var(--si-radius);
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    box-shadow: var(--si-shadow-sm);
+    margin-bottom: 1.5rem;
+    font-size: .93rem;
+    color: var(--si-body);
+}
+
+    .table > thead > tr > th {
+        background-color: var(--si-surface-sunken);
+        border-bottom: 1px solid var(--si-border) !important;
+        color: var(--si-muted);
+        font-size: .74rem;
+        font-weight: 650;
+        letter-spacing: .055em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        padding: .7rem .85rem;
+        vertical-align: middle;
+    }
+
+    .table > tbody > tr > td {
+        padding: .68rem .85rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--si-border);
+        border-top: 0;
+    }
+
+    .table > tbody > tr:last-child > td {
+        border-bottom: 0;
+    }
+
+    .table > tbody > tr:hover > td {
+        background-color: var(--si-primary-tint);
+    }
+
+/* Bootstrap's striping paints a background var on the cell, which would sit
+   on top of the hover colour — turn it off on hover so hover always wins. */
+.table-striped > tbody > tr:hover > * {
+    --bs-table-accent-bg: transparent;
+}
+
+/* .table-sm is used by the asset History view. */
+.table-sm > thead > tr > th,
+.table-sm > tbody > tr > td {
+    padding: .5rem .7rem;
+    font-size: .89rem;
+}
+
+/* Action cells: the trailing column holds Edit / Delete / Assign links. */
+.table td > a,
+.table td > form {
+    white-space: nowrap;
+}
+
+    .table td > a + a,
+    .table td > a + form,
+    .table td > form + form {
+        margin-left: .35rem;
+    }
+
+/* Asset codes and other identifiers read better in a monospaced face. */
+.table td a[href*="/Details/"] {
+    font-weight: 550;
+}
+
+/* No .table-responsive wrapper exists in the views, so let the table itself
+   scroll on small screens rather than blowing out the page width. */
+@media (max-width: 767.98px) {
+    .table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+
+/* ==========================================================================
+   7. Definition lists — the Details pages
+   ========================================================================== */
+
+main > dl.row {
+    background-color: var(--si-surface);
+    border: 1px solid var(--si-border);
+    border-radius: var(--si-radius);
+    box-shadow: var(--si-shadow-sm);
+    padding: 1.15rem 1.25rem .4rem;
+    margin-bottom: 1.5rem;
+}
+
+    main > dl.row > dt {
+        color: var(--si-muted);
+        font-size: .76rem;
+        font-weight: 650;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        padding-top: .2rem;
+        margin-bottom: .75rem;
+    }
+
+    main > dl.row > dd {
+        color: var(--si-ink);
+        margin-bottom: .75rem;
+    }
+
+@media (max-width: 575.98px) {
+    main > dl.row > dt {
+        margin-bottom: .1rem;
+    }
+}
+
+
+/* ==========================================================================
+   8. Forms
+   Create/Edit views put <form> directly inside <main>; the login and
+   change-password screens nest it one column deep. Inline forms in table
+   cells and the .d-inline confirm buttons must NOT get the card treatment.
+   ========================================================================== */
+
+main > form:not(.d-inline):not(.row),
+main > .row > [class*="col-"] > form {
+    background-color: var(--si-surface);
+    border: 1px solid var(--si-border);
+    border-radius: var(--si-radius);
+    box-shadow: var(--si-shadow-sm);
+    padding: 1.4rem 1.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+    max-width: 720px;
+}
+
+/* The search / filter bar at the top of Assets/Index is a form.row — it wants
+   to read as a toolbar, not as a form card. */
+main > form.row {
+    background-color: var(--si-surface);
+    border: 1px solid var(--si-border);
+    border-radius: var(--si-radius);
+    box-shadow: var(--si-shadow-sm);
+    padding: .75rem .85rem;
+    margin: 0 0 1.25rem;
+    align-items: center;
+}
+
+.form-label {
+    color: var(--si-ink);
+    font-size: .855rem;
+    font-weight: 600;
+    margin-bottom: .3rem;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid var(--si-border-strong);
+    border-radius: var(--si-radius-sm);
+    color: var(--si-ink);
+    background-color: var(--si-surface);
+    padding: .48rem .7rem;
+    font-size: .93rem;
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+
+    .form-control::placeholder {
+        color: #9aa7b5;
+    }
+
+    .form-control:hover,
+    .form-select:hover {
+        border-color: #adb9c7;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--si-primary);
+    }
+
+    .form-control:disabled,
+    .form-control[readonly],
+    .form-select:disabled {
+        background-color: var(--si-surface-sunken);
+        color: var(--si-muted);
+    }
+
+textarea.form-control {
+    min-height: 5.5rem;
+    resize: vertical;
+}
+
+.form-text {
+    color: var(--si-muted);
+    font-size: .82rem;
+    margin-top: .3rem;
+}
+
+    .form-text strong {
+        color: var(--si-body);
+    }
+
+/* Field-level validation messages (asp-validation-for). */
+.text-danger {
+    color: var(--si-danger) !important;
+}
+
+span.text-danger {
+    display: inline-block;
+    font-size: .84rem;
+    margin-top: .28rem;
+}
+
+/* jQuery unobtrusive validation marks the offending input. */
+.input-validation-error {
+    border-color: var(--si-danger) !important;
+}
+
+    .input-validation-error:focus {
+        box-shadow: 0 0 0 3px rgba(180, 35, 42, .22);
+    }
+
+/* The summary block rendered by asp-validation-summary="ModelOnly", which is
+   where BaseController.HandleServiceException surfaces service errors. */
+div.text-danger:not(:empty),
+.validation-summary-errors {
+    background-color: var(--si-danger-tint);
+    border: 1px solid var(--si-danger-border);
+    border-left: 3px solid var(--si-danger);
+    border-radius: var(--si-radius-sm);
+    padding: .7rem .9rem;
+    font-size: .9rem;
+}
+
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 1.15rem;
+    }
+
+    .validation-summary-errors li {
+        margin: .1rem 0;
+    }
+
+/* An empty summary div must not render as an empty red box. */
+.validation-summary-valid {
+    display: none;
+}
+
+
+/* ==========================================================================
+   9. Buttons
+   ========================================================================== */
+
+.btn {
+    border-radius: var(--si-radius-sm);
+    font-size: .91rem;
+    font-weight: 550;
+    padding: .48rem 1rem;
+    border: 1px solid transparent;
+    transition: background-color .12s ease, border-color .12s ease, color .12s ease, box-shadow .12s ease;
+}
+
+    .btn + .btn,
+    .btn + form.d-inline,
+    form.d-inline + .btn {
+        margin-left: .4rem;
+    }
+
+.btn-sm {
+    padding: .32rem .7rem;
+    font-size: .85rem;
+}
+
+.btn-primary {
+    background-color: var(--si-primary);
+    border-color: var(--si-primary);
+    color: #fff;
+}
+
+    .btn-primary:hover,
+    .btn-primary:active {
+        background-color: var(--si-primary-hover) !important;
+        border-color: var(--si-primary-hover) !important;
+        color: #fff;
+    }
+
+.btn-secondary {
+    background-color: var(--si-surface);
+    border-color: var(--si-border-strong);
+    color: var(--si-body);
+}
+
+    .btn-secondary:hover,
+    .btn-secondary:active {
+        background-color: var(--si-surface-sunken) !important;
+        border-color: #adb9c7 !important;
+        color: var(--si-ink) !important;
+    }
+
+.btn-success {
+    background-color: var(--si-success);
+    border-color: var(--si-success);
+    color: #fff;
+}
+
+    .btn-success:hover,
+    .btn-success:active {
+        background-color: var(--si-success-hover) !important;
+        border-color: var(--si-success-hover) !important;
+        color: #fff;
+    }
+
+.btn-danger {
+    background-color: var(--si-danger);
+    border-color: var(--si-danger);
+    color: #fff;
+}
+
+    .btn-danger:hover,
+    .btn-danger:active {
+        background-color: var(--si-danger-hover) !important;
+        border-color: var(--si-danger-hover) !important;
+        color: #fff;
+    }
+
+.btn-warning {
+    background-color: var(--si-warning);
+    border-color: var(--si-warning);
+    color: #fff;
+}
+
+    .btn-warning:hover,
+    .btn-warning:active {
+        background-color: var(--si-warning-hover) !important;
+        border-color: var(--si-warning-hover) !important;
+        color: #fff;
+    }
+
+.btn-info {
+    background-color: var(--si-info);
+    border-color: var(--si-info);
+    color: #fff;
+}
+
+    .btn-info:hover,
+    .btn-info:active {
+        background-color: var(--si-info-hover) !important;
+        border-color: var(--si-info-hover) !important;
+        color: #fff;
+    }
+
+.btn-outline-primary {
+    color: var(--si-primary);
+    border-color: var(--si-primary-border);
+    background-color: transparent;
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--si-primary-tint);
+        border-color: var(--si-primary);
+        color: var(--si-primary-hover);
+    }
+
+.btn-outline-secondary {
+    color: var(--si-body);
+    border-color: var(--si-border-strong);
+    background-color: transparent;
+}
+
+    .btn-outline-secondary:hover {
+        background-color: var(--si-surface-sunken);
+        border-color: #adb9c7;
+        color: var(--si-ink);
+    }
+
+.btn-outline-danger {
+    color: var(--si-danger);
+    border-color: var(--si-danger-border);
+    background-color: transparent;
+}
+
+    .btn-outline-danger:hover {
+        background-color: var(--si-danger-tint);
+        border-color: var(--si-danger);
+        color: var(--si-danger-hover);
+    }
+
+/* Delete actions inside table rows are .btn-link.text-danger.p-0 — they
+   should read as links, not as buttons. */
+.table .btn-link {
+    font-size: .93rem;
+    font-weight: 500;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+    text-decoration: none;
+}
+
+    .table .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .table .btn-link.text-danger:hover {
+        color: var(--si-danger-hover) !important;
+    }
+
+
+/* ==========================================================================
+   10. Alerts
+   TempData["ErrorMessage"] / ["StatusMessage"] and the explanatory
+   .alert-info blocks on the approval screens.
+   ========================================================================== */
+
+.alert {
+    border-radius: var(--si-radius);
+    border-width: 1px;
+    border-left-width: 3px;
+    padding: .8rem 1rem;
+    font-size: .92rem;
+    box-shadow: var(--si-shadow-sm);
+    margin-bottom: 1.25rem;
+}
+
+.alert-danger {
+    background-color: var(--si-danger-tint);
+    border-color: var(--si-danger-border);
+    border-left-color: var(--si-danger);
+    color: #7a171c;
+}
+
+.alert-success {
+    background-color: var(--si-success-tint);
+    border-color: var(--si-success-border);
+    border-left-color: var(--si-success);
+    color: #10492e;
+}
+
+.alert-info {
+    background-color: var(--si-info-tint);
+    border-color: var(--si-info-border);
+    border-left-color: var(--si-info);
+    color: #0d4a56;
+}
+
+.alert-warning {
+    background-color: var(--si-warning-tint);
+    border-color: var(--si-warning-border);
+    border-left-color: var(--si-warning);
+    color: #6b4500;
+}
+
+
+/* ==========================================================================
+   11. Status pills — OPT-IN
+   --------------------------------------------------------------------------
+   Nothing in the views uses these yet; status columns currently render the
+   enum as bare text. To adopt them, wrap the value:
+
+       <span class="status-pill status-available">@asset.Status</span>
+
+   The class names match AssetStatus, RequestStatus and the "Active" /
+   "Inactive" values on Users. StatusBadgeHelper (see the chat notes) maps an
+   enum to the right class so views don't hand-write the branch.
+   ========================================================================== */
+
+.status-pill {
+    display: inline-block;
+    padding: .16rem .58rem;
+    border-radius: var(--si-radius-pill);
+    border: 1px solid transparent;
+    font-size: .765rem;
+    font-weight: 650;
+    letter-spacing: .025em;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+/* Good / available / resolved */
+.status-available,
+.status-active,
+.status-approved,
+.status-fulfilled,
+.status-new,
+.status-excellent,
+.status-good {
+    background-color: var(--si-success-tint);
+    border-color: var(--si-success-border);
+    color: var(--si-success-hover);
+}
+
+/* In motion / awaiting someone */
+.status-assigned,
+.status-intransit,
+.status-reserved,
+.status-pending,
+.status-fair {
+    background-color: var(--si-warning-tint);
+    border-color: var(--si-warning-border);
+    color: var(--si-warning-hover);
+}
+
+/* Attention required */
+.status-undermaintenance,
+.status-damaged,
+.status-lost,
+.status-poor,
+.status-rejected {
+    background-color: var(--si-danger-tint);
+    border-color: var(--si-danger-border);
+    color: var(--si-danger-hover);
+}
+
+/* Retired / withdrawn — deliberately grey, not red: a disposed asset or a
+   cancelled request is a normal outcome, not a fault. */
+.status-disposed,
+.status-cancelled,
+.status-inactive {
+    background-color: var(--si-surface-sunken);
+    border-color: var(--si-border-strong);
+    color: var(--si-muted);
+}
+
+/* Request type, shown alongside status on the request screens. */
+.status-borrow {
+    background-color: var(--si-primary-tint);
+    border-color: var(--si-primary-border);
+    color: var(--si-primary-hover);
+}
+
+.status-transfer {
+    background-color: var(--si-info-tint);
+    border-color: var(--si-info-border);
+    color: var(--si-info-hover);
+}
+
+
+/* ==========================================================================
+   12. Sign-in and change-password screens
+   ========================================================================== */
+
+main > .row.justify-content-center {
+    margin-top: 3rem !important;
+}
+
+    main > .row.justify-content-center h2 {
+        text-align: center;
+        font-size: 1.4rem;
+    }
+
+    main > .row.justify-content-center > [class*="col-"] > form {
+        padding: 1.75rem 1.75rem 1.9rem;
+        box-shadow: var(--si-shadow-lg);
+    }
+
+    main > .row.justify-content-center .btn-primary.w-100 {
+        padding: .6rem 1rem;
+        margin-top: .35rem;
+    }
+
+/* Access denied is a centred .text-center block rather than a form. */
+main > .text-center.mt-5 {
+    background-color: var(--si-surface);
+    border: 1px solid var(--si-border);
+    border-radius: var(--si-radius);
+    box-shadow: var(--si-shadow);
+    max-width: 30rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2.25rem 2rem;
+}
+
+
+/* ==========================================================================
+   13. Footer
+   ========================================================================== */
+
+.footer {
+    flex-shrink: 0;
+    background-color: var(--si-surface);
+    border-top: 1px solid var(--si-border) !important;
+    color: var(--si-muted);
+    font-size: .84rem;
+    padding: 1rem 0;
+}
+
+    .footer .container {
+        max-width: 1180px;
+    }
+
+    .footer a {
+        color: var(--si-muted);
+    }
+
+        .footer a:hover {
+            color: var(--si-primary);
+        }
+
+
+/* ==========================================================================
+   14. Empty states
+   The "No assets found." / "Nothing is waiting for approval." paragraphs
+   that follow every table.
+   ========================================================================== */
+
+main > table + p.text-muted,
+main > .table + p.text-muted {
+    background-color: var(--si-surface);
+    border: 1px dashed var(--si-border-strong);
+    border-radius: var(--si-radius);
+    padding: 1.75rem 1rem;
+    text-align: center;
+    margin-top: -.4rem;
+}
+
+
+/* ==========================================================================
+   15. Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* ==========================================================================
+   16. Print
+   Asset history and request records get printed and filed, so make that
+   come out cleanly: no chrome, no interactive controls, readable borders.
+   ========================================================================== */
+
+@media print {
+    body {
+        background: #fff;
+        color: #000;
+        font-size: 11pt;
+    }
+
+    header,
+    .navbar,
+    .footer,
+    .btn,
+    form.d-inline,
+    main > form.row {
+        display: none !important;
+    }
+
+    body > .container {
+        max-width: none;
+        padding: 0;
+    }
+
+    .table,
+    main > dl.row {
+        border: 1px solid #999;
+        box-shadow: none;
+    }
+
+        .table > thead > tr > th {
+            background: #eee !important;
+            color: #000;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .table > tbody > tr > td {
+            border-bottom: 1px solid #ccc;
+        }
+
+    .status-pill {
+        border: 1px solid #999;
+        color: #000;
+    }
+
+    a[href]::after {
+        content: "";
+    }
+}

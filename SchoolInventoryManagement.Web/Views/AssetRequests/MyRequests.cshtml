@@ -1,0 +1,53 @@
+﻿@model List<SchoolInventoryManagement.BLL.DTOs.AssetRequestResponseDTO>
+@{
+    ViewData["Title"] = "My Requests";
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">My Requests</h2>
+    <a asp-action="Create" class="btn btn-primary">+ New Request</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Type</th>
+            <th>What</th>
+            <th>Submitted</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model)
+        {
+            <tr>
+                <td>@request.RequestID</td>
+                <td>@request.RequestType</td>
+                <td>
+                    @if (request.RequestType == SchoolInventoryManagement.DAL.Entities.Enums.RequestType.Borrow)
+                    {
+                        @(request.ModelName ?? "—")
+                    }
+                    else
+                    {
+                        @($"{request.AssetCode} → {request.RequestedLocationName}")
+                    }
+                </td>
+                <td>@request.RequestDate.ToString("MMM d, yyyy")</td>
+                <td>@request.RequestStatus</td>
+                <td><a asp-action="Details" asp-route-id="@request.RequestID">View</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">You haven't submitted any requests yet.</p>
+}

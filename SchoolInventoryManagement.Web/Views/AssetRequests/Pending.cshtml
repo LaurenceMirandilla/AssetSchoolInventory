@@ -1,0 +1,62 @@
+﻿@model List<SchoolInventoryManagement.BLL.DTOs.AssetRequestResponseDTO>
+@{
+    ViewData["Title"] = "Pending Requests";
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<h2>Pending Requests</h2>
+<p class="text-muted">
+    You can't act on a request from someone who shares your role — that one
+    has to go to an approver of a different role.
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Requester</th>
+            <th>Role</th>
+            <th>Department</th>
+            <th>Type</th>
+            <th>What</th>
+            <th>Submitted</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model)
+        {
+            <tr>
+                <td>@request.RequestID</td>
+                <td>@request.RequestedByUser.FullName</td>
+                <td>@request.RequestedByUser.RoleName</td>
+                <td>@request.DepartmentName</td>
+                <td>@request.RequestType</td>
+                <td>
+                    @if (request.RequestType == SchoolInventoryManagement.DAL.Entities.Enums.RequestType.Borrow)
+                    {
+                        @(request.ModelName ?? "—")
+                    }
+                    else
+                    {
+                        @($"{request.AssetCode} → {request.RequestedLocationName}")
+                    }
+                </td>
+                <td>@request.RequestDate.ToString("MMM d, yyyy")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@request.RequestID">View</a>
+                    <a asp-action="Approve" asp-route-id="@request.RequestID" class="ms-2">Approve</a>
+                    <a asp-action="Reject" asp-route-id="@request.RequestID" class="ms-2 text-danger">Reject</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Nothing is waiting for approval.</p>
+}
