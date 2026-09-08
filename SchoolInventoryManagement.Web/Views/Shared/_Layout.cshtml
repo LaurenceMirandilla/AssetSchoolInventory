@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -9,120 +10,191 @@
     <link rel="stylesheet" href="~/SchoolInventoryManagement.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">School Inventory Management</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Assets" asp-action="Index">Assets</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="AssetRequests" asp-action="MyRequests">My Requests</a>
-                            </li>
-                            @if (User.IsInRole("Asset Officer") || User.IsInRole("Administrator") || User.IsInRole("Principal"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="AssetRequests" asp-action="Pending">Approvals</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Reports" asp-action="Index">Reports</a>
-                                </li>
-                            }
-                            @* Org structure: users, branches and departments all
-                               sit behind Administrator or Principal. *@
-                            @if (User.IsInRole("Administrator") || User.IsInRole("Principal"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Users" asp-action="Index">Users</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Branches" asp-action="Index">Branches</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Departments" asp-action="Index">Departments</a>
-                                </li>
-                            }
-                            @* Asset reference data: catalogue and physical rooms,
-                               which the Asset Officer maintains day to day. *@
-                            @if (User.IsInRole("Asset Officer") || User.IsInRole("Administrator"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Categories" asp-action="Index">Categories</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Models" asp-action="Index">Models</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Locations" asp-action="Index">Locations</a>
-                                </li>
-                            }
-                        }
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            var roleName = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-                            <li class="nav-item d-flex align-items-center me-3">
-                                <span class="text-dark">
-                                    Logged in as <strong>@User.Identity.Name</strong> (@roleName)
-                                </span>
-                            </li>
-                            <li class="nav-item d-flex align-items-center me-2">
-                                @await Component.InvokeAsync("NotificationBell")
-                            </li>
-                            <li class="nav-item d-flex align-items-center me-2">
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="ChangePassword">Change Password</a>
-                            </li>
-                            <li class="nav-item">
+@{
+    var isAuthed = User.Identity?.IsAuthenticated == true;
+    var isApprover = User.IsInRole("Asset Officer") || User.IsInRole("Administrator") || User.IsInRole("Principal");
+    var isUserManager = User.IsInRole("Administrator") || User.IsInRole("Principal");
+    var isAssetManager = User.IsInRole("Asset Officer") || User.IsInRole("Administrator");
+    var roleName = User.FindFirst(ClaimTypes.Role)?.Value;
+    var displayName = User.Identity?.Name ?? "";
+    var initials = string.Concat(displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(p => p[0])).ToUpperInvariant();
+    if (initials.Length > 2) initials = initials[..2];
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    Func<string[], bool> isActive = controllers =>
+        controllers.Any(c => string.Equals(c, currentController, StringComparison.OrdinalIgnoreCase));
+}
+<div class="sab-shell">
+
+    @if (isAuthed)
+    {
+        <aside class="sab-sidebar">
+            <a class="sab-brand" asp-controller="Home" asp-action="Index">
+                <span class="sab-brand-mark">SAB</span>
+                <span class="sab-brand-text">
+                    <span class="sab-brand-name d-block">School Inventory</span>
+                    <span class="sab-brand-sub">Inventory</span>
+                </span>
+            </a>
+
+            <ul class="sab-nav">
+                <li class="sab-nav-item">
+                    <a class="sab-nav-link @(isActive(new[]{"Home"}) ? "active" : "")" asp-controller="Home" asp-action="Index">
+                        <span class="sab-nav-label">Home</span>
+                    </a>
+                </li>
+                <li class="sab-nav-item">
+                    <a class="sab-nav-link @(isActive(new[]{"Assets"}) ? "active" : "")" asp-controller="Assets" asp-action="Index">
+                        <span class="sab-nav-label">Assets</span>
+                    </a>
+                </li>
+                <li class="sab-nav-item">
+                    <a class="sab-nav-link @(isActive(new[]{"AssetRequests"}) ? "active" : "")" asp-controller="AssetRequests" asp-action="MyRequests">
+                        <span class="sab-nav-label">My Requests</span>
+                    </a>
+                </li>
+
+                @if (isApprover)
+                {
+                    <li class="sab-nav-heading">Approvals</li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"AssetRequests"}) ? "active" : "")" asp-controller="AssetRequests" asp-action="Pending">
+                            <span class="sab-nav-label">Approvals</span>
+                        </a>
+                    </li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"Reports"}) ? "active" : "")" asp-controller="Reports" asp-action="Index">
+                            <span class="sab-nav-label">Reports</span>
+                        </a>
+                    </li>
+                }
+
+                @if (isAssetManager)
+                {
+                    <li class="sab-nav-heading">Catalog</li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"Categories"}) ? "active" : "")" asp-controller="Categories" asp-action="Index">
+                            <span class="sab-nav-label">Categories</span>
+                        </a>
+                    </li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"Models"}) ? "active" : "")" asp-controller="Models" asp-action="Index">
+                            <span class="sab-nav-label">Models</span>
+                        </a>
+                    </li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"Locations"}) ? "active" : "")" asp-controller="Locations" asp-action="Index">
+                            <span class="sab-nav-label">Locations</span>
+                        </a>
+                    </li>
+                }
+
+                @if (isUserManager)
+                {
+                    <li class="sab-nav-heading">Organization</li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"Users"}) ? "active" : "")" asp-controller="Users" asp-action="Index">
+                            <span class="sab-nav-label">Users</span>
+                        </a>
+                    </li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"Branches"}) ? "active" : "")" asp-controller="Branches" asp-action="Index">
+                            <span class="sab-nav-label">Branches</span>
+                        </a>
+                    </li>
+                    <li class="sab-nav-item">
+                        <a class="sab-nav-link @(isActive(new[]{"Departments"}) ? "active" : "")" asp-controller="Departments" asp-action="Index">
+                            <span class="sab-nav-label">Departments</span>
+                        </a>
+                    </li>
+                }
+
+                <li class="sab-nav-heading">&nbsp;</li>
+                <li class="sab-nav-item">
+                    <a class="sab-nav-link @(isActive(new[]{"Notifications"}) ? "active" : "")" asp-controller="Notifications" asp-action="Index">
+                        <span class="sab-nav-label">Notifications</span>
+                    </a>
+                </li>
+                <li class="sab-nav-item">
+                    <a class="sab-nav-link @(isActive(new[]{"Home"}) && currentAction == "Privacy" ? "active" : "")"
+                       asp-controller="Home" asp-action="Privacy">
+                        <span class="sab-nav-label">Privacy</span>
+                    </a>
+                </li>
+            </ul>
+
+            <a class="sab-sidebar-cta" asp-controller="AssetRequests" asp-action="Create">
+                <span>+</span> New Request
+            </a>
+        </aside>
+    }
+
+    <div class="sab-main">
+        <header class="sab-topbar">
+            <span class="sab-topbar-title">School Inventory Management</span>
+
+            @if (isAuthed)
+            {
+                <div class="sab-search sab-search-wrap">
+                    <span class="sab-search-icon">&#128269;</span>
+                    <form asp-controller="Assets" asp-action="Index" method="get">
+                        <input type="text" name="keyword" placeholder="Search assets, codes, serials&hellip;" />
+                    </form>
+                </div>
+            }
+
+            <div class="sab-topbar-right">
+                @if (isAuthed)
+                {
+                    <a class="sab-bell" asp-controller="Notifications" asp-action="Index" title="Notifications">
+                        @await Component.InvokeAsync("NotificationBell")
+                    </a>
+
+                    <div class="sab-user dropdown">
+                        <a href="#" class="sab-user d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="sab-user-text d-none d-sm-block">
+                                <span class="sab-user-name d-block">@displayName</span>
+                                <span class="sab-user-role">@roleName</span>
+                            </span>
+                            <span class="sab-avatar">@initials</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-controller="Users" asp-action="ChangePassword">Change Password</a></li>
+                            <li>
                                 <form asp-controller="Account" asp-action="Logout" method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                                    <button type="submit" class="dropdown-item">Logout</button>
                                 </form>
                             </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="btn btn-outline-primary btn-sm" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">Login</a>
+                }
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+        </header>
+
+        <main class="sab-content">
             @if (TempData["StatusMessage"] != null)
             {
                 <div class="alert alert-success">@TempData["StatusMessage"]</div>
             }
             @RenderBody()
         </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
+        <footer class="border-top footer text-muted py-3 px-4">
             &copy; 2026 - School Inventory Management - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+        </footer>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

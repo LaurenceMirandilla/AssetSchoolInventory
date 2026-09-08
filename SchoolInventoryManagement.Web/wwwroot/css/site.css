@@ -1,981 +1,541 @@
 /* ==========================================================================
-   School Inventory Management — application theme
-   --------------------------------------------------------------------------
-   Layered on top of Bootstrap 5.1. Bootstrap 5.1 predates per-component CSS
-   variables (--bs-btn-bg and friends arrived in 5.3), so components are
-   overridden explicitly here rather than by retinting a variable.
-
-   Written against the markup that already exists — no view changes are
-   required for anything in this file except the .status-pill block, which
-   is opt-in and documented where it is defined.
-   ========================================================================== */
-
-
-/* ==========================================================================
-   1. Design tokens
+   Ste. Anne De Beaupre — Inventory theme
+   Green re-skin of the default Bootstrap 5 look. Drop this in at
+   wwwroot/css/site.css, replacing the existing file. Nothing here renames
+   or removes a class already used by the views — it only restyles them,
+   so no .cshtml files need to change.
    ========================================================================== */
 
 :root {
-    /* Neutrals */
-    --si-canvas: #f4f6f9;
-    --si-surface: #ffffff;
-    --si-surface-sunken: #f8fafc;
-    --si-border: #dde3ea;
-    --si-border-strong: #c6d0db;
-    /* Text */
-    --si-ink: #16202e;
-    --si-body: #2c3a4b;
-    --si-muted: #64748b;
-    /* Brand + intent. Every one of these carries at least 4.5:1 against
-       white, so white button text on them is readable. */
-    --si-primary: #1b5e9c;
-    --si-primary-hover: #164e83;
-    --si-primary-tint: #e9f0f7;
-    --si-primary-border: #c3d8ea;
-    --si-success: #196b43;
-    --si-success-hover: #145737;
-    --si-success-tint: #e7f3ec;
-    --si-success-border: #bcdcc8;
-    --si-danger: #b4232a;
-    --si-danger-hover: #971d23;
-    --si-danger-tint: #fbeaea;
-    --si-danger-border: #efc4c5;
-    --si-warning: #9a6400;
-    --si-warning-hover: #815300;
-    --si-warning-tint: #fdf3e2;
-    --si-warning-border: #ecd6ab;
-    --si-info: #146c7e;
-    --si-info-hover: #105866;
-    --si-info-tint: #e6f2f4;
-    --si-info-border: #b8d8de;
-    /* Shape + depth */
-    --si-radius: 8px;
-    --si-radius-sm: 5px;
-    --si-radius-pill: 999px;
-    --si-shadow-sm: 0 1px 2px rgba(22, 32, 46, .06);
-    --si-shadow: 0 1px 3px rgba(22, 32, 46, .08), 0 1px 2px rgba(22, 32, 46, .04);
-    --si-shadow-lg: 0 4px 16px rgba(22, 32, 46, .10);
-    --si-focus-ring: 0 0 0 3px rgba(27, 94, 156, .28);
-    --si-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    --si-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sab-green: #2E7D32;
+    --sab-green-dark: #1B5E20;
+    --sab-green-darker: #144a19;
+    --sab-green-light: #E8F5E9;
+    --sab-green-border: #A5D6A7;
+    --sab-bg: #F5F5F5;
+    --sab-surface: #ffffff;
+    --sab-border: #e5e7eb;
+    --sab-text: #1f2937;
+    --sab-text-muted: #6b7280;
+    --sab-text-faint: #9ca3af;
+    --sab-amber-bg: #fdf3e0;
+    --sab-amber-text: #9a6a17;
+    --sab-red-bg: #fdeaea;
+    --sab-red-text: #b3261e;
+    --sab-purple-bg: #f1eafc;
+    --sab-purple-text: #6b3fa0;
+    --sab-blue-bg: #e8f3fb;
+    --sab-blue-text: #2a6f97;
+    --sab-gray-bg: #eef0f2;
+    --sab-gray-text: #5b6472;
+    --sab-radius: 10px;
+    --sab-radius-sm: 6px;
+    --sab-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+    --sidebar-width: 248px;
 }
 
+* { box-sizing: border-box; }
 
-/* ==========================================================================
-   2. Base
-   ========================================================================== */
-
-html {
-    font-size: 15px;
-    -webkit-text-size-adjust: 100%;
-}
-
-@media (min-width: 768px) {
-    html {
-        font-size: 16px;
-    }
-}
-
-body {
-    /* Sticky footer without absolute positioning: body's three children are
-       <header>, .container and <footer>, so a column flexbox does the job
-       and the footer stays put on short pages. */
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0;
-    font-family: var(--si-font);
-    color: var(--si-body);
-    background-color: var(--si-canvas);
-    line-height: 1.55;
-}
-
-    body > .container {
-        flex: 1 0 auto;
-        width: 100%;
-        max-width: 1180px;
-        padding-top: .5rem;
-        padding-bottom: 2.5rem;
-    }
-
-h1, h2, h3, h4, h5, h6 {
-    color: var(--si-ink);
-    font-weight: 600;
-    letter-spacing: -.01em;
+html, body {
+  background: var(--sab-bg);
+  color: var(--sab-text);
+  font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 a {
-    color: var(--si-primary);
-    text-decoration: none;
+  color: var(--sab-green);
+  text-decoration: none;
 }
-
-    a:hover,
-    a:focus-visible {
-        color: var(--si-primary-hover);
-        text-decoration: underline;
-    }
-
-strong {
-    font-weight: 600;
-    color: var(--si-ink);
-}
-
-code, kbd, pre, samp {
-    font-family: var(--si-font-mono);
-}
-
-/* Bootstrap's .text-muted is used all over the views for secondary copy. */
-.text-muted {
-    color: var(--si-muted) !important;
-}
-
-::selection {
-    background: var(--si-primary-tint);
-    color: var(--si-ink);
-}
-
+a:hover { color: var(--sab-green-dark); text-decoration: underline; }
 
 /* ==========================================================================
-   3. Focus visibility
-   Replaces the default template's white-halo focus ring, which disappeared
-   against the tinted page background.
+   App shell: fixed sidebar + header, scrolling content
    ========================================================================== */
 
-.btn:focus,
-.btn:active:focus,
-.btn-link.nav-link:focus,
-.form-control:focus,
-.form-select:focus,
-.form-check-input:focus {
-    box-shadow: var(--si-focus-ring);
-    outline: none;
+.sab-shell {
+  display: flex;
+  min-height: 100vh;
 }
 
-a:focus-visible,
-button:focus-visible,
-[tabindex]:focus-visible {
-    outline: 2px solid var(--si-primary);
-    outline-offset: 2px;
-    border-radius: var(--si-radius-sm);
+.sab-sidebar {
+  width: var(--sidebar-width);
+  flex: 0 0 var(--sidebar-width);
+  background: var(--sab-surface);
+  border-right: 1px solid var(--sab-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 20px 14px;
 }
 
+.sab-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 20px;
+  text-decoration: none;
+  color: inherit;
+}
+.sab-brand:hover { text-decoration: none; }
+.sab-brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--sab-green-light);
+  border: 1px solid var(--sab-green-border);
+  color: var(--sab-green-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.sab-brand-text { line-height: 1.15; }
+.sab-brand-name { font-weight: 700; font-size: 0.92rem; color: var(--sab-text); }
+.sab-brand-sub { font-size: 0.68rem; letter-spacing: 0.08em; color: var(--sab-text-faint); text-transform: uppercase; }
+
+.sab-nav {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+.sab-nav-heading {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sab-text-faint);
+  padding: 14px 10px 6px;
+}
+.sab-nav-item { margin: 2px 0; }
+.sab-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--sab-radius-sm);
+  color: var(--sab-text-muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.sab-nav-link:hover {
+  background: var(--sab-bg);
+  color: var(--sab-text);
+  text-decoration: none;
+}
+.sab-nav-link.active {
+  background: var(--sab-green-light);
+  color: var(--sab-green-dark);
+  font-weight: 600;
+}
+.sab-nav-link .sab-nav-label { display: flex; align-items: center; gap: 10px; }
+.sab-nav-link .bi, .sab-nav-link svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+.sab-nav-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #d92d20;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sab-sidebar-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--sab-green);
+  color: #fff;
+  border: none;
+  border-radius: var(--sab-radius-sm);
+  padding: 11px 14px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  margin-top: auto;
+}
+.sab-sidebar-cta:hover { background: var(--sab-green-dark); color: #fff; text-decoration: none; }
 
 /* ==========================================================================
-   4. Navbar
-   Matches .navbar.navbar-light.bg-white.border-bottom.box-shadow in _Layout.
+   Main column: header + content
    ========================================================================== */
 
-/* .box-shadow is a leftover class from the ASP.NET template that nothing
-   defines any more — define it rather than leave a dead hook in the markup. */
-.box-shadow {
-    box-shadow: var(--si-shadow-sm);
+.sab-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.navbar {
-    background-color: var(--si-surface) !important;
-    border-bottom: 1px solid var(--si-border) !important;
-    box-shadow: var(--si-shadow-sm);
-    padding-top: .55rem;
-    padding-bottom: .55rem;
+.sab-topbar {
+  background: var(--sab-surface);
+  border-bottom: 1px solid var(--sab-border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.sab-topbar-title {
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: var(--sab-text);
+  white-space: nowrap;
+}
+.sab-search {
+  flex: 1 1 auto;
+  max-width: 420px;
+  margin-left: 8px;
+}
+.sab-search input {
+  width: 100%;
+  border: 1px solid var(--sab-border);
+  background: var(--sab-bg);
+  border-radius: var(--sab-radius-sm);
+  padding: 8px 12px 8px 34px;
+  font-size: 0.88rem;
+  color: var(--sab-text);
+}
+.sab-search-wrap { position: relative; }
+.sab-search-wrap .sab-search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--sab-text-faint);
+  pointer-events: none;
 }
 
-    .navbar .container-fluid {
-        max-width: 1180px;
-        margin: 0 auto;
-    }
+.sab-topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
-.navbar-brand {
-    font-weight: 650;
-    font-size: 1.02rem;
-    color: var(--si-ink) !important;
-    letter-spacing: -.015em;
-    display: inline-flex;
+.sab-bell {
+  position: relative;
+  color: var(--sab-text-muted);
+  display: inline-flex;
+  padding: 4px;
+}
+.sab-bell .sab-bell-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d92d20;
+  border: 1.5px solid var(--sab-surface);
+}
+
+.sab-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sab-user-text { line-height: 1.2; text-align: right; }
+.sab-user-name { font-weight: 600; font-size: 0.86rem; color: var(--sab-text); }
+.sab-user-role { font-size: 0.74rem; color: var(--sab-text-muted); }
+.sab-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sab-green);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sab-content {
+  padding: 24px 28px 48px;
+  flex: 1 1 auto;
+}
+
+/* Mobile: collapse sidebar into a top bar */
+@media (max-width: 900px) {
+  .sab-shell { flex-direction: column; }
+  .sab-sidebar {
+    position: static;
+    height: auto;
+    width: 100%;
+    flex: none;
+    flex-direction: row;
     align-items: center;
-    gap: .5rem;
+    padding: 10px 14px;
+    overflow-x: auto;
+  }
+  .sab-nav { display: flex; flex: none; overflow: visible; }
+  .sab-nav-item { margin: 0 2px; }
+  .sab-nav-heading { display: none; }
+  .sab-sidebar-cta { display: none; }
+  .sab-brand { padding: 0 10px 0 0; }
+  .sab-content { padding: 18px 16px 40px; }
+  .sab-topbar { padding: 12px 16px; flex-wrap: wrap; }
+  .sab-search { order: 3; max-width: none; flex: 1 1 100%; margin-left: 0; }
 }
-
-    /* A small mark before the brand text, so the header reads as a product
-   rather than a bare link. Purely decorative, hidden from screen readers. */
-    .navbar-brand::before {
-        content: "";
-        width: 1.45rem;
-        height: 1.45rem;
-        border-radius: var(--si-radius-sm);
-        background: linear-gradient(135deg, var(--si-primary), var(--si-info));
-        flex: 0 0 auto;
-    }
-
-.navbar-nav .nav-link,
-.navbar-nav .nav-link.text-dark {
-    color: var(--si-body) !important;
-    font-size: .935rem;
-    font-weight: 500;
-    padding: .4rem .7rem;
-    border-radius: var(--si-radius-sm);
-    transition: background-color .12s ease, color .12s ease;
-}
-
-    .navbar-nav .nav-link:hover,
-    .navbar-nav .nav-link.text-dark:hover,
-    .navbar-nav .nav-link:focus-visible {
-        color: var(--si-primary) !important;
-        background-color: var(--si-primary-tint);
-        text-decoration: none;
-    }
-
-/* The "Logged in as ..." block on the right of the nav. */
-.navbar-nav .nav-item > span.text-dark {
-    color: var(--si-muted) !important;
-    font-size: .855rem;
-}
-
-    .navbar-nav .nav-item > span.text-dark strong {
-        color: var(--si-ink);
-    }
-
-.navbar-toggler {
-    border-color: var(--si-border-strong);
-    padding: .3rem .55rem;
-}
-
-    .navbar-toggler:focus {
-        box-shadow: var(--si-focus-ring);
-    }
-
-@media (max-width: 575.98px) {
-    .navbar-collapse {
-        padding-top: .5rem;
-        border-top: 1px solid var(--si-border);
-        margin-top: .5rem;
-    }
-
-    .navbar-nav .nav-item > span.text-dark {
-        padding: .35rem .7rem;
-        display: block;
-    }
-}
-
 
 /* ==========================================================================
-   5. Page headings
-   Every view opens with an <h2>, most follow it with a muted <p> subtitle.
+   Cards / panels
    ========================================================================== */
 
-main > h2,
-main > .d-flex > h2 {
-    font-size: 1.5rem;
-    margin: .25rem 0 .35rem;
+.card, .sab-card {
+  background: var(--sab-surface);
+  border: 1px solid var(--sab-border);
+  border-radius: var(--sab-radius);
+  box-shadow: var(--sab-shadow);
 }
-
-    main > h2 + p.text-muted {
-        margin-top: -.15rem;
-        margin-bottom: 1.25rem;
-        font-size: .92rem;
-    }
-
-/* Section headings inside the asset history timeline. */
-main > h4 {
-    font-size: 1.05rem;
-    margin-top: 2rem;
-    margin-bottom: .6rem;
-    padding-bottom: .4rem;
-    border-bottom: 1px solid var(--si-border);
-}
-
-/* The heading + primary-action rows (Users, My Requests). */
-main > .d-flex.justify-content-between {
-    margin-bottom: 1.1rem;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
+.card-body { padding: 20px; }
 
 /* ==========================================================================
-   6. Tables
+   Report tiles / KPI cards (Reports/Index.cshtml)
    ========================================================================== */
 
-.table {
-    --bs-table-striped-bg: var(--si-surface-sunken);
-    background-color: var(--si-surface);
-    border: 1px solid var(--si-border);
-    border-radius: var(--si-radius);
-    border-collapse: separate;
-    border-spacing: 0;
-    overflow: hidden;
-    box-shadow: var(--si-shadow-sm);
-    margin-bottom: 1.5rem;
-    font-size: .93rem;
-    color: var(--si-body);
+.report-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
 }
-
-    .table > thead > tr > th {
-        background-color: var(--si-surface-sunken);
-        border-bottom: 1px solid var(--si-border) !important;
-        color: var(--si-muted);
-        font-size: .74rem;
-        font-weight: 650;
-        letter-spacing: .055em;
-        text-transform: uppercase;
-        white-space: nowrap;
-        padding: .7rem .85rem;
-        vertical-align: middle;
-    }
-
-    .table > tbody > tr > td {
-        padding: .68rem .85rem;
-        vertical-align: middle;
-        border-bottom: 1px solid var(--si-border);
-        border-top: 0;
-    }
-
-    .table > tbody > tr:last-child > td {
-        border-bottom: 0;
-    }
-
-    .table > tbody > tr:hover > td {
-        background-color: var(--si-primary-tint);
-    }
-
-/* Bootstrap's striping paints a background var on the cell, which would sit
-   on top of the hover colour — turn it off on hover so hover always wins. */
-.table-striped > tbody > tr:hover > * {
-    --bs-table-accent-bg: transparent;
+.report-tile {
+  background: var(--sab-surface);
+  border: 1px solid var(--sab-border);
+  border-radius: var(--sab-radius);
+  box-shadow: var(--sab-shadow);
+  padding: 18px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-
-/* .table-sm is used by the asset History view. */
-.table-sm > thead > tr > th,
-.table-sm > tbody > tr > td {
-    padding: .5rem .7rem;
-    font-size: .89rem;
+.report-tile-label {
+  font-size: 0.8rem;
+  color: var(--sab-text-muted);
+  order: 2;
+  padding-top: 8px;
+  border-top: 1px solid var(--sab-border);
+  margin-top: 8px;
 }
-
-/* Action cells: the trailing column holds Edit / Delete / Assign links. */
-.table td > a,
-.table td > form {
-    white-space: nowrap;
+.report-tile-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--sab-text);
+  order: 1;
 }
-
-    .table td > a + a,
-    .table td > a + form,
-    .table td > form + form {
-        margin-left: .35rem;
-    }
-
-/* Asset codes and other identifiers read better in a monospaced face. */
-.table td a[href*="/Details/"] {
-    font-weight: 550;
+.report-tile-note {
+  font-size: 0.76rem;
+  color: var(--sab-text-faint);
+  order: 3;
 }
-
-/* No .table-responsive wrapper exists in the views, so let the table itself
-   scroll on small screens rather than blowing out the page width. */
-@media (max-width: 767.98px) {
-    .table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
 
 /* ==========================================================================
-   7. Definition lists — the Details pages
-   ========================================================================== */
-
-main > dl.row {
-    background-color: var(--si-surface);
-    border: 1px solid var(--si-border);
-    border-radius: var(--si-radius);
-    box-shadow: var(--si-shadow-sm);
-    padding: 1.15rem 1.25rem .4rem;
-    margin-bottom: 1.5rem;
-}
-
-    main > dl.row > dt {
-        color: var(--si-muted);
-        font-size: .76rem;
-        font-weight: 650;
-        letter-spacing: .05em;
-        text-transform: uppercase;
-        padding-top: .2rem;
-        margin-bottom: .75rem;
-    }
-
-    main > dl.row > dd {
-        color: var(--si-ink);
-        margin-bottom: .75rem;
-    }
-
-@media (max-width: 575.98px) {
-    main > dl.row > dt {
-        margin-bottom: .1rem;
-    }
-}
-
-
-/* ==========================================================================
-   8. Forms
-   Create/Edit views put <form> directly inside <main>; the login and
-   change-password screens nest it one column deep. Inline forms in table
-   cells and the .d-inline confirm buttons must NOT get the card treatment.
-   ========================================================================== */
-
-main > form:not(.d-inline):not(.row),
-main > .row > [class*="col-"] > form {
-    background-color: var(--si-surface);
-    border: 1px solid var(--si-border);
-    border-radius: var(--si-radius);
-    box-shadow: var(--si-shadow-sm);
-    padding: 1.4rem 1.5rem 1.5rem;
-    margin-bottom: 1.5rem;
-    max-width: 720px;
-}
-
-/* The search / filter bar at the top of Assets/Index is a form.row — it wants
-   to read as a toolbar, not as a form card. */
-main > form.row {
-    background-color: var(--si-surface);
-    border: 1px solid var(--si-border);
-    border-radius: var(--si-radius);
-    box-shadow: var(--si-shadow-sm);
-    padding: .75rem .85rem;
-    margin: 0 0 1.25rem;
-    align-items: center;
-}
-
-.form-label {
-    color: var(--si-ink);
-    font-size: .855rem;
-    font-weight: 600;
-    margin-bottom: .3rem;
-}
-
-.form-control,
-.form-select {
-    border: 1px solid var(--si-border-strong);
-    border-radius: var(--si-radius-sm);
-    color: var(--si-ink);
-    background-color: var(--si-surface);
-    padding: .48rem .7rem;
-    font-size: .93rem;
-    transition: border-color .12s ease, box-shadow .12s ease;
-}
-
-    .form-control::placeholder {
-        color: #9aa7b5;
-    }
-
-    .form-control:hover,
-    .form-select:hover {
-        border-color: #adb9c7;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: var(--si-primary);
-    }
-
-    .form-control:disabled,
-    .form-control[readonly],
-    .form-select:disabled {
-        background-color: var(--si-surface-sunken);
-        color: var(--si-muted);
-    }
-
-textarea.form-control {
-    min-height: 5.5rem;
-    resize: vertical;
-}
-
-.form-text {
-    color: var(--si-muted);
-    font-size: .82rem;
-    margin-top: .3rem;
-}
-
-    .form-text strong {
-        color: var(--si-body);
-    }
-
-/* Field-level validation messages (asp-validation-for). */
-.text-danger {
-    color: var(--si-danger) !important;
-}
-
-span.text-danger {
-    display: inline-block;
-    font-size: .84rem;
-    margin-top: .28rem;
-}
-
-/* jQuery unobtrusive validation marks the offending input. */
-.input-validation-error {
-    border-color: var(--si-danger) !important;
-}
-
-    .input-validation-error:focus {
-        box-shadow: 0 0 0 3px rgba(180, 35, 42, .22);
-    }
-
-/* The summary block rendered by asp-validation-summary="ModelOnly", which is
-   where BaseController.HandleServiceException surfaces service errors. */
-div.text-danger:not(:empty),
-.validation-summary-errors {
-    background-color: var(--si-danger-tint);
-    border: 1px solid var(--si-danger-border);
-    border-left: 3px solid var(--si-danger);
-    border-radius: var(--si-radius-sm);
-    padding: .7rem .9rem;
-    font-size: .9rem;
-}
-
-    .validation-summary-errors ul {
-        margin: 0;
-        padding-left: 1.15rem;
-    }
-
-    .validation-summary-errors li {
-        margin: .1rem 0;
-    }
-
-/* An empty summary div must not render as an empty red box. */
-.validation-summary-valid {
-    display: none;
-}
-
-
-/* ==========================================================================
-   9. Buttons
-   ========================================================================== */
-
-.btn {
-    border-radius: var(--si-radius-sm);
-    font-size: .91rem;
-    font-weight: 550;
-    padding: .48rem 1rem;
-    border: 1px solid transparent;
-    transition: background-color .12s ease, border-color .12s ease, color .12s ease, box-shadow .12s ease;
-}
-
-    .btn + .btn,
-    .btn + form.d-inline,
-    form.d-inline + .btn {
-        margin-left: .4rem;
-    }
-
-.btn-sm {
-    padding: .32rem .7rem;
-    font-size: .85rem;
-}
-
-.btn-primary {
-    background-color: var(--si-primary);
-    border-color: var(--si-primary);
-    color: #fff;
-}
-
-    .btn-primary:hover,
-    .btn-primary:active {
-        background-color: var(--si-primary-hover) !important;
-        border-color: var(--si-primary-hover) !important;
-        color: #fff;
-    }
-
-.btn-secondary {
-    background-color: var(--si-surface);
-    border-color: var(--si-border-strong);
-    color: var(--si-body);
-}
-
-    .btn-secondary:hover,
-    .btn-secondary:active {
-        background-color: var(--si-surface-sunken) !important;
-        border-color: #adb9c7 !important;
-        color: var(--si-ink) !important;
-    }
-
-.btn-success {
-    background-color: var(--si-success);
-    border-color: var(--si-success);
-    color: #fff;
-}
-
-    .btn-success:hover,
-    .btn-success:active {
-        background-color: var(--si-success-hover) !important;
-        border-color: var(--si-success-hover) !important;
-        color: #fff;
-    }
-
-.btn-danger {
-    background-color: var(--si-danger);
-    border-color: var(--si-danger);
-    color: #fff;
-}
-
-    .btn-danger:hover,
-    .btn-danger:active {
-        background-color: var(--si-danger-hover) !important;
-        border-color: var(--si-danger-hover) !important;
-        color: #fff;
-    }
-
-.btn-warning {
-    background-color: var(--si-warning);
-    border-color: var(--si-warning);
-    color: #fff;
-}
-
-    .btn-warning:hover,
-    .btn-warning:active {
-        background-color: var(--si-warning-hover) !important;
-        border-color: var(--si-warning-hover) !important;
-        color: #fff;
-    }
-
-.btn-info {
-    background-color: var(--si-info);
-    border-color: var(--si-info);
-    color: #fff;
-}
-
-    .btn-info:hover,
-    .btn-info:active {
-        background-color: var(--si-info-hover) !important;
-        border-color: var(--si-info-hover) !important;
-        color: #fff;
-    }
-
-.btn-outline-primary {
-    color: var(--si-primary);
-    border-color: var(--si-primary-border);
-    background-color: transparent;
-}
-
-    .btn-outline-primary:hover {
-        background-color: var(--si-primary-tint);
-        border-color: var(--si-primary);
-        color: var(--si-primary-hover);
-    }
-
-.btn-outline-secondary {
-    color: var(--si-body);
-    border-color: var(--si-border-strong);
-    background-color: transparent;
-}
-
-    .btn-outline-secondary:hover {
-        background-color: var(--si-surface-sunken);
-        border-color: #adb9c7;
-        color: var(--si-ink);
-    }
-
-.btn-outline-danger {
-    color: var(--si-danger);
-    border-color: var(--si-danger-border);
-    background-color: transparent;
-}
-
-    .btn-outline-danger:hover {
-        background-color: var(--si-danger-tint);
-        border-color: var(--si-danger);
-        color: var(--si-danger-hover);
-    }
-
-/* Delete actions inside table rows are .btn-link.text-danger.p-0 — they
-   should read as links, not as buttons. */
-.table .btn-link {
-    font-size: .93rem;
-    font-weight: 500;
-    padding: 0;
-    border: 0;
-    vertical-align: baseline;
-    text-decoration: none;
-}
-
-    .table .btn-link:hover {
-        text-decoration: underline;
-    }
-
-    .table .btn-link.text-danger:hover {
-        color: var(--si-danger-hover) !important;
-    }
-
-
-/* ==========================================================================
-   10. Alerts
-   TempData["ErrorMessage"] / ["StatusMessage"] and the explanatory
-   .alert-info blocks on the approval screens.
-   ========================================================================== */
-
-.alert {
-    border-radius: var(--si-radius);
-    border-width: 1px;
-    border-left-width: 3px;
-    padding: .8rem 1rem;
-    font-size: .92rem;
-    box-shadow: var(--si-shadow-sm);
-    margin-bottom: 1.25rem;
-}
-
-.alert-danger {
-    background-color: var(--si-danger-tint);
-    border-color: var(--si-danger-border);
-    border-left-color: var(--si-danger);
-    color: #7a171c;
-}
-
-.alert-success {
-    background-color: var(--si-success-tint);
-    border-color: var(--si-success-border);
-    border-left-color: var(--si-success);
-    color: #10492e;
-}
-
-.alert-info {
-    background-color: var(--si-info-tint);
-    border-color: var(--si-info-border);
-    border-left-color: var(--si-info);
-    color: #0d4a56;
-}
-
-.alert-warning {
-    background-color: var(--si-warning-tint);
-    border-color: var(--si-warning-border);
-    border-left-color: var(--si-warning);
-    color: #6b4500;
-}
-
-
-/* ==========================================================================
-   11. Status pills — OPT-IN
-   --------------------------------------------------------------------------
-   Nothing in the views uses these yet; status columns currently render the
-   enum as bare text. To adopt them, wrap the value:
-
-       <span class="status-pill status-available">@asset.Status</span>
-
-   The class names match AssetStatus, RequestStatus and the "Active" /
-   "Inactive" values on Users. StatusBadgeHelper (see the chat notes) maps an
-   enum to the right class so views don't hand-write the branch.
+   Status pills — one class per enum value used across the app.
+   Views build these as status-@Value.ToString().ToLowerInvariant(), so the
+   spelling here must match the enum names exactly (no spaces/hyphens).
    ========================================================================== */
 
 .status-pill {
-    display: inline-block;
-    padding: .16rem .58rem;
-    border-radius: var(--si-radius-pill);
-    border: 1px solid transparent;
-    font-size: .765rem;
-    font-weight: 650;
-    letter-spacing: .025em;
-    line-height: 1.5;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  border: 1px solid transparent;
 }
 
-/* Good / available / resolved */
-.status-available,
-.status-active,
-.status-approved,
-.status-fulfilled,
-.status-new,
-.status-excellent,
-.status-good {
-    background-color: var(--si-success-tint);
-    border-color: var(--si-success-border);
-    color: var(--si-success-hover);
-}
+/* RequestStatus */
+.status-pending   { background: var(--sab-amber-bg);  color: var(--sab-amber-text); }
+.status-approved  { background: var(--sab-green-light); color: var(--sab-green-dark); }
+.status-fulfilled { background: var(--sab-green-light); color: var(--sab-green-dark); }
+.status-rejected  { background: var(--sab-red-bg);    color: var(--sab-red-text); }
+.status-cancelled { background: var(--sab-gray-bg);   color: var(--sab-gray-text); }
 
-/* In motion / awaiting someone */
-.status-assigned,
-.status-intransit,
-.status-reserved,
-.status-pending,
-.status-fair {
-    background-color: var(--si-warning-tint);
-    border-color: var(--si-warning-border);
-    color: var(--si-warning-hover);
-}
+/* RequestType */
+.status-borrow   { background: var(--sab-blue-bg);   color: var(--sab-blue-text);   border-color: #cfe6f2; }
+.status-transfer { background: var(--sab-purple-bg); color: var(--sab-purple-text); border-color: #e1d3f5; }
 
-/* Attention required */
-.status-undermaintenance,
-.status-damaged,
-.status-lost,
-.status-poor,
-.status-rejected {
-    background-color: var(--si-danger-tint);
-    border-color: var(--si-danger-border);
-    color: var(--si-danger-hover);
-}
+/* AssetStatus */
+.status-available       { background: var(--sab-green-light); color: var(--sab-green-dark); }
+.status-assigned        { background: var(--sab-blue-bg);     color: var(--sab-blue-text); }
+.status-intransit       { background: var(--sab-purple-bg);   color: var(--sab-purple-text); }
+.status-undermaintenance{ background: var(--sab-amber-bg);    color: var(--sab-amber-text); }
+.status-reserved        { background: var(--sab-amber-bg);    color: var(--sab-amber-text); }
+.status-lost             { background: var(--sab-red-bg);     color: var(--sab-red-text); }
+.status-damaged          { background: var(--sab-red-bg);     color: var(--sab-red-text); }
+.status-disposed         { background: var(--sab-gray-bg);    color: var(--sab-gray-text); }
 
-/* Retired / withdrawn — deliberately grey, not red: a disposed asset or a
-   cancelled request is a normal outcome, not a fault. */
-.status-disposed,
-.status-cancelled,
-.status-inactive {
-    background-color: var(--si-surface-sunken);
-    border-color: var(--si-border-strong);
-    color: var(--si-muted);
-}
-
-/* Request type, shown alongside status on the request screens. */
-.status-borrow {
-    background-color: var(--si-primary-tint);
-    border-color: var(--si-primary-border);
-    color: var(--si-primary-hover);
-}
-
-.status-transfer {
-    background-color: var(--si-info-tint);
-    border-color: var(--si-info-border);
-    color: var(--si-info-hover);
-}
-
+/* ConditionStatus (falls back cleanly if unstyled, but give the common ones) */
+.status-new       { background: var(--sab-green-light); color: var(--sab-green-dark); }
+.status-excellent { background: var(--sab-green-light); color: var(--sab-green-dark); }
+.status-good      { background: var(--sab-blue-bg);     color: var(--sab-blue-text); }
+.status-fair      { background: var(--sab-amber-bg);    color: var(--sab-amber-text); }
+.status-poor      { background: var(--sab-red-bg);      color: var(--sab-red-text); }
 
 /* ==========================================================================
-   12. Sign-in and change-password screens
+   Same-role / "not yours to decide" banners — the amber callouts from the
+   mockup. Existing views use plain Bootstrap alerts; restyle those instead
+   of requiring a new class everywhere.
    ========================================================================== */
 
-main > .row.justify-content-center {
-    margin-top: 3rem !important;
+.alert {
+  border-radius: var(--sab-radius);
+  border: 1px solid transparent;
+  font-size: 0.9rem;
 }
-
-    main > .row.justify-content-center h2 {
-        text-align: center;
-        font-size: 1.4rem;
-    }
-
-    main > .row.justify-content-center > [class*="col-"] > form {
-        padding: 1.75rem 1.75rem 1.9rem;
-        box-shadow: var(--si-shadow-lg);
-    }
-
-    main > .row.justify-content-center .btn-primary.w-100 {
-        padding: .6rem 1rem;
-        margin-top: .35rem;
-    }
-
-/* Access denied is a centred .text-center block rather than a form. */
-main > .text-center.mt-5 {
-    background-color: var(--si-surface);
-    border: 1px solid var(--si-border);
-    border-radius: var(--si-radius);
-    box-shadow: var(--si-shadow);
-    max-width: 30rem;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 2.25rem 2rem;
+.alert-warning, .alert-info {
+  background: var(--sab-amber-bg);
+  color: var(--sab-amber-text);
+  border-color: #f3e3c2;
 }
-
+.alert-success {
+  background: var(--sab-green-light);
+  color: var(--sab-green-dark);
+  border-color: var(--sab-green-border);
+}
+.alert-danger {
+  background: var(--sab-red-bg);
+  color: var(--sab-red-text);
+  border-color: #f6cfcd;
+}
 
 /* ==========================================================================
-   13. Footer
+   Buttons
    ========================================================================== */
 
-.footer {
-    flex-shrink: 0;
-    background-color: var(--si-surface);
-    border-top: 1px solid var(--si-border) !important;
-    color: var(--si-muted);
-    font-size: .84rem;
-    padding: 1rem 0;
+.btn { border-radius: var(--sab-radius-sm); font-weight: 600; font-size: 0.9rem; }
+
+.btn-primary {
+  background: var(--sab-green);
+  border-color: var(--sab-green);
+  color: #fff;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--sab-green-dark);
+  border-color: var(--sab-green-dark);
+  color: #fff;
 }
 
-    .footer .container {
-        max-width: 1180px;
-    }
+.btn-secondary {
+  background: var(--sab-surface);
+  border-color: var(--sab-border);
+  color: var(--sab-text);
+}
+.btn-secondary:hover {
+  background: var(--sab-bg);
+  border-color: var(--sab-border);
+  color: var(--sab-text);
+}
 
-    .footer a {
-        color: var(--si-muted);
-    }
+.btn-outline-primary, .btn-outline-secondary {
+  border-color: var(--sab-border);
+  color: var(--sab-text);
+}
+.btn-outline-primary:hover, .btn-outline-secondary:hover {
+  background: var(--sab-green-light);
+  border-color: var(--sab-green-border);
+  color: var(--sab-green-dark);
+}
 
-        .footer a:hover {
-            color: var(--si-primary);
-        }
+.btn-danger {
+  background: #d92d20;
+  border-color: #d92d20;
+}
+.btn-danger:hover { background: #b3261e; border-color: #b3261e; }
 
+.btn-success {
+  background: var(--sab-green);
+  border-color: var(--sab-green);
+}
+.btn-success:hover { background: var(--sab-green-dark); border-color: var(--sab-green-dark); }
+
+.btn-link { font-weight: 500; }
+.btn-link.text-danger { color: var(--sab-red-text) !important; }
+.btn-link.text-success { color: var(--sab-green-dark) !important; }
 
 /* ==========================================================================
-   14. Empty states
-   The "No assets found." / "Nothing is waiting for approval." paragraphs
-   that follow every table.
+   Tables
    ========================================================================== */
 
-main > table + p.text-muted,
-main > .table + p.text-muted {
-    background-color: var(--si-surface);
-    border: 1px dashed var(--si-border-strong);
-    border-radius: var(--si-radius);
-    padding: 1.75rem 1rem;
-    text-align: center;
-    margin-top: -.4rem;
+.table {
+  --bs-table-bg: transparent;
+  font-size: 0.92rem;
 }
+.table thead th {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--sab-text-faint);
+  font-weight: 700;
+  border-bottom: 1px solid var(--sab-border);
+  background: transparent;
+}
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-accent-bg: var(--sab-bg);
+}
+.table td, .table th { vertical-align: middle; }
 
+/* Tables are usually inside a card-like white block in the mockup */
+.table-responsive, table.table {
+  background: var(--sab-surface);
+}
 
 /* ==========================================================================
-   15. Motion
+   Forms
    ========================================================================== */
 
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important;
-    }
+.form-control, .form-select {
+  border-color: var(--sab-border);
+  border-radius: var(--sab-radius-sm);
+  font-size: 0.92rem;
 }
-
+.form-control:focus, .form-select:focus {
+  border-color: var(--sab-green);
+  box-shadow: 0 0 0 3px var(--sab-green-light);
+}
+.form-label { font-weight: 600; font-size: 0.86rem; color: var(--sab-text); }
+.form-text { color: var(--sab-text-muted); font-size: 0.8rem; }
 
 /* ==========================================================================
-   16. Print
-   Asset history and request records get printed and filed, so make that
-   come out cleanly: no chrome, no interactive controls, readable borders.
+   Badges / list groups / nav tabs (Notifications, misc)
    ========================================================================== */
 
-@media print {
-    body {
-        background: #fff;
-        color: #000;
-        font-size: 11pt;
-    }
+.badge.bg-danger { background-color: #d92d20 !important; }
+.badge.bg-secondary { background-color: var(--sab-gray-bg) !important; color: var(--sab-gray-text) !important; }
 
-    header,
-    .navbar,
-    .footer,
-    .btn,
-    form.d-inline,
-    main > form.row {
-        display: none !important;
-    }
+.list-group-item { border-color: var(--sab-border); }
+.list-group-item-light { background: var(--sab-green-light); }
+.border-primary { border-color: var(--sab-green) !important; }
 
-    body > .container {
-        max-width: none;
-        padding: 0;
-    }
-
-    .table,
-    main > dl.row {
-        border: 1px solid #999;
-        box-shadow: none;
-    }
-
-        .table > thead > tr > th {
-            background: #eee !important;
-            color: #000;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-
-        .table > tbody > tr > td {
-            border-bottom: 1px solid #ccc;
-        }
-
-    .status-pill {
-        border: 1px solid #999;
-        color: #000;
-    }
-
-    a[href]::after {
-        content: "";
-    }
+.nav-tabs { border-bottom-color: var(--sab-border); }
+.nav-tabs .nav-link { color: var(--sab-text-muted); border: none; border-bottom: 2px solid transparent; }
+.nav-tabs .nav-link.active {
+  color: var(--sab-green-dark);
+  border-bottom-color: var(--sab-green);
+  background: transparent;
 }
+
+/* ==========================================================================
+   Page furniture
+   ========================================================================== */
+
+h2 { font-weight: 700; font-size: 1.35rem; color: var(--sab-text); }
+.text-muted { color: var(--sab-text-muted) !important; }
