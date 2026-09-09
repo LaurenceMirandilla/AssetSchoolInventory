@@ -1,8 +1,131 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model SchoolInventoryManagement.Web.ViewModels.HomeDashboardViewModel
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (!Model.IsReportsViewer)
+{
+    <h2>Welcome, @Model.DisplayName</h2>
+    <p class="text-muted">
+        Use <strong>My Requests</strong> in the sidebar to submit or track a Borrow or Transfer request.
+    </p>
+}
+else
+{
+    <h2 class="mb-0">Good morning, @Model.DisplayName</h2>
+    <p class="text-muted mb-3">@DateTime.Now.ToString("dddd, d MMMM yyyy")</p>
+
+    <div class="report-tiles">
+        <div class="report-tile">
+            <span class="report-tile-value">@Model.TotalAssets</span>
+            <span class="report-tile-label">Registered assets</span>
+        </div>
+        <div class="report-tile">
+            <span class="report-tile-value">@Model.CurrentlyIssued</span>
+            <span class="report-tile-label">Currently issued</span>
+        </div>
+        <div class="report-tile">
+            <span class="report-tile-value">@Model.UnderMaintenanceCount</span>
+            <span class="report-tile-label">Under maintenance</span>
+        </div>
+        <div class="report-tile">
+            <span class="report-tile-value">@Model.ValueInService.ToString("C0")</span>
+            <span class="report-tile-label">Value in service</span>
+            <span class="report-tile-note">excludes disposed units</span>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Needs your attention</h5>
+                        <a asp-controller="AssetRequests" asp-action="Pending" class="small">View all</a>
+                    </div>
+
+                    @if (Model.PendingRequestCount > 0)
+                    {
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <div class="fw-semibold">Requests awaiting your decision</div>
+                                <div class="text-muted small">@Model.PendingRequestCount pending</div>
+                            </div>
+                            <a asp-controller="AssetRequests" asp-action="Pending" class="btn btn-sm btn-outline-secondary">Review</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Nothing is waiting on you right now.</p>
+                    }
+
+                    @* The mockup also shows "assets out 90+ days", "in maintenance
+                       since <date>" and "missing serial number" rows. Those
+                       aren't computed anywhere in IReportService yet — happy to
+                       add the queries for them next rather than show fake counts. *@
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-3">Assets by category</h5>
+
+                    @{
+                        var maxCount = Model.ByCategory.Any() ? Model.ByCategory.Max(c => c.Count) : 1;
+                    }
+
+                    @foreach (var row in Model.ByCategory)
+                    {
+                        var pct = maxCount == 0 ? 0 : (int)Math.Round(100.0 * row.Count / maxCount);
+                        <div class="d-flex align-items-center mb-2" style="gap:10px;">
+                            <span class="text-muted small" style="width:110px; flex-shrink:0;">@row.Label</span>
+                            <div style="flex:1 1 auto; background:var(--sab-bg); border-radius:4px; height:10px;">
+                                <div style="width:@(pct)%; background:var(--sab-green); height:10px; border-radius:4px;"></div>
+                            </div>
+                            <span class="fw-semibold small" style="width:32px; text-align:right;">@row.Count</span>
+                        </div>
+                    }
+
+                    @if (!Model.ByCategory.Any())
+                    {
+                        <p class="text-muted mb-0">No assets registered yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-3">Recent activity</h5>
+
+                    @if (Model.RecentActivity.Any())
+                    {
+                        @foreach (var entry in Model.RecentActivity)
+                        {
+                            <div class="d-flex mb-3" style="gap:10px;">
+                                <span class="sab-avatar" style="width:28px;height:28px;font-size:0.68rem;">
+                                    @string.Concat(entry.UserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(p => p[0])).ToUpperInvariant()
+                                </span>
+                                <div>
+                                    <div class="small">
+                                        <strong>@entry.UserName</strong> — @entry.ActionPerformed
+                                        @if (!string.IsNullOrWhiteSpace(entry.TargetAssetCode))
+                                        {
+                                            <code>@entry.TargetAssetCode</code>
+                                        }
+                                    </div>
+                                    <div class="text-muted small">@entry.LogDateTime.ToString("MMM d, h:mm tt")</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No recent activity.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

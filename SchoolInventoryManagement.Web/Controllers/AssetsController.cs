@@ -379,5 +379,40 @@ namespace SchoolInventoryManagement.Web.Controllers
 
             return RedirectToAction(nameof(Details), new { id = asset.AssetID });
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
+        public async Task<IActionResult> SendToMaintenance(int id, string rowVersionBase64)
+        {
+            try
+            {
+                var rowVersion = RowVersionHelper.FromBase64(rowVersionBase64);
+                await _assetService.ChangeStatusAsync(id, AssetStatus.UnderMaintenance, rowVersion, CurrentUserId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        // POST /Assets/ReturnToService/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
+        public async Task<IActionResult> ReturnToService(int id, string rowVersionBase64)
+        {
+            try
+            {
+                var rowVersion = RowVersionHelper.FromBase64(rowVersionBase64);
+                await _assetService.ChangeStatusAsync(id, AssetStatus.Available, rowVersion, CurrentUserId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
     }
 }
