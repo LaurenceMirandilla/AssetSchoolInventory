@@ -5,7 +5,7 @@
 
 <h2>New Asset</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -58,32 +58,33 @@
         <label asp-for="ImageURL" class="form-label"></label>
         <input asp-for="ImageURL" class="form-control" />
     </div>
-
+    <div class="mb-3">
+        <label asp-for="ImageFile" class="form-label">Photo <span class="text-muted">(optional)</span></label>
+        <input asp-for="ImageFile" type="file" accept="image/jpeg,image/png,image/webp" class="form-control" />
+    </div>
     <div class="mb-3">
         <label asp-for="Condition" class="form-label"></label>
         <select asp-for="Condition" asp-items="Html.GetEnumSelectList<SchoolInventoryManagement.DAL.Entities.Enums.ConditionStatus>()" class="form-select"></select>
     </div>
 
     <div class="mb-3">
-        <label asp-for="CurrentLocationID" class="form-label">Location</label>
-        <select asp-for="CurrentLocationID" asp-items="ViewBag.Locations" class="form-select">
-            <option value="">-- None --</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DepartmentID" class="form-label">Department</label>
-        <select asp-for="DepartmentID" asp-items="ViewBag.Departments" class="form-select">
-            <option value="">-- None --</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
         <label asp-for="BranchID" class="form-label">Branch</label>
-        <select asp-for="BranchID" asp-items="ViewBag.Branches" class="form-select">
+        <select asp-for="BranchID" id="branchSelect" asp-items="ViewBag.Branches" class="form-select">
             <option value="">-- Select Branch --</option>
         </select>
         <span asp-validation-for="BranchID" class="text-danger"></span>
+        <div class="form-text">Pick a branch first — Location below will narrow to it.</div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CurrentLocationID" class="form-label">Location</label>
+        <select asp-for="CurrentLocationID" id="locationSelect" class="form-select">
+            <option value="">-- None --</option>
+            @foreach (var loc in (List<SchoolInventoryManagement.BLL.DTOs.LocationDTO>)ViewBag.LocationsByBranch)
+            {
+                <option value="@loc.LocationID" data-branch="@loc.BranchID">@loc.LocationName</option>
+            }
+        </select>
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
@@ -94,4 +95,31 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        (function() {
+            var branchSelect = document.getElementById('branchSelect');
+            var locationSelect = document.getElementById('locationSelect');
+            var departmentSelect = document.getElementById('departmentSelect');
+
+            function filterByBranch() {
+                var branchId = branchSelect.value;
+
+                [locationSelect, departmentSelect].forEach(function(select) {
+                    Array.from(select.options).forEach(function(opt) {
+                        if (!opt.value) { opt.hidden = false; return; } // keep "-- None --" always visible
+                        opt.hidden = branchId === '' || opt.getAttribute('data-branch') !== branchId;
+                    });
+
+                    // If the currently selected option got hidden by the filter, reset it
+                    var selected = select.options[select.selectedIndex];
+                    if (selected && selected.hidden) {
+                        select.value = '';
+                    }
+                });
+            }
+
+            branchSelect.addEventListener('change', filterByBranch);
+            filterByBranch(); // run on load too, so a failed-validation redisplay re-filters correctly
+        })();
+    </script>
 }

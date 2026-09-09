@@ -4,11 +4,10 @@ namespace SchoolInventoryManagement.BLL.DTOs
 {
     public class UpdateAssetDTO
     {
-        [Required]
-        [MaxLength(150)]
+        [Required, MaxLength(150)]
         public string AssetName { get; set; } = null!;
 
-        [MaxLength(500)]
+        [MaxLength(500)] 
         public string? Description { get; set; }
 
         [MaxLength(100)]
@@ -21,8 +20,9 @@ namespace SchoolInventoryManagement.BLL.DTOs
         public string? ImageURL { get; set; }
 
         public int? CurrentLocationID { get; set; }
+        [Required]
+        public int? BranchID { get; set; } // NEW
 
-        public int? DepartmentID { get; set; }
 
         // Needed for optimistic concurrency check —
         // client must send back the RowVersion it last read

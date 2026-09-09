@@ -52,7 +52,6 @@ namespace SchoolInventoryManagement.BLL.Services
                 Condition = dto.Condition,
                 Status = AssetStatus.Available,
                 CurrentLocationID = dto.CurrentLocationID,
-                DepartmentID = dto.DepartmentID,
                 BranchID = dto.BranchID
             };
 
@@ -131,7 +130,7 @@ namespace SchoolInventoryManagement.BLL.Services
             asset.WarrantyInformation = dto.WarrantyInformation;
             asset.ImageURL = dto.ImageURL;
             asset.CurrentLocationID = dto.CurrentLocationID;
-            asset.DepartmentID = dto.DepartmentID;
+            asset.BranchID = dto.BranchID;
 
             try
             {

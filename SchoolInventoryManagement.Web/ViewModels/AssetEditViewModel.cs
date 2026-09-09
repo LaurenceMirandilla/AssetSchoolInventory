@@ -23,8 +23,12 @@ namespace SchoolInventoryManagement.Web.ViewModels
         public string? ImageURL { get; set; }
 
         public int? CurrentLocationID { get; set; }
-        public int? DepartmentID { get; set; }
+        public int? BranchID { get; set; }
+        [Display(Name = "Photo")]
+public IFormFile? ImageFile { get; set; }
 
+// Kept for Edit, so a re-displayed form after a validation error still
+// shows the existing image's path rather than looking like it vanished.
         // Base64 string for HTML form transport — decoded to byte[]
         // in the controller before calling the service. See RowVersionHelper.
         [Required]

@@ -40,8 +40,6 @@ namespace SchoolInventoryManagement.BLL.DTOs
 
         public int? CurrentLocationID { get; set; }
 
-        public int? DepartmentID { get; set; }
-
         [Required]
         public int BranchID { get; set; }
     }

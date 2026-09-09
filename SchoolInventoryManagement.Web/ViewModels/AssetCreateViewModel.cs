@@ -38,8 +38,11 @@ namespace SchoolInventoryManagement.Web.ViewModels
         public ConditionStatus Condition { get; set; } = ConditionStatus.Good;
 
         public int? CurrentLocationID { get; set; }
-        public int? DepartmentID { get; set; }
+        [Display(Name = "Photo")]
+public IFormFile? ImageFile { get; set; }
 
+// Kept for Edit, so a re-displayed form after a validation error still
+// shows the existing image's path rather than looking like it vanished.
         [Required]
         public int BranchID { get; set; }
     }

@@ -55,7 +55,7 @@ namespace SchoolInventoryManagement.DAL.Entities
         public int? CurrentLocationID { get; set; }
         public int? AssignedUserID { get; set; }
         public int? DepartmentID { get; set; }
-        public int BranchID { get; set; }
+        public int? BranchID { get; set; }
 
         // Optimistic Concurrency Token
         [Timestamp]

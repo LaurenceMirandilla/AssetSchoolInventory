@@ -11,10 +11,11 @@ using SchoolInventoryManagement.DAL.Entities.Enums;
 using SchoolInventoryManagement.Web.Helpers;
 using SchoolInventoryManagement.Web.ViewModels;
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-
+using QRCoder;
 
 namespace SchoolInventoryManagement.Web.Controllers
 {
@@ -28,11 +29,11 @@ namespace SchoolInventoryManagement.Web.Controllers
         private readonly IDisposalService _disposalService;
 
         public AssetsController(
-    IAssetService assetService,
-    IDisposalService disposalService,
-    IAssetAssignmentService assignmentService,
-    IAssetMovementService movementService,
-    ApplicationDbContext context)
+            IAssetService assetService,
+            IDisposalService disposalService,
+            IAssetAssignmentService assignmentService,
+            IAssetMovementService movementService,
+            ApplicationDbContext context)
         {
             _assetService = assetService;
             _disposalService = disposalService;
@@ -40,7 +41,6 @@ namespace SchoolInventoryManagement.Web.Controllers
             _movementService = movementService;
             _context = context;
         }
-
 
         private int CurrentUserId =>
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -62,6 +62,30 @@ namespace SchoolInventoryManagement.Web.Controllers
             ViewBag.Branches = new SelectList(
                 await _context.Branches.OrderBy(b => b.BranchName).ToListAsync(),
                 "BranchID", "BranchName");
+
+            ViewBag.LocationsByBranch = await _context.Locations
+                .OrderBy(l => l.LocationName)
+                .Select(l => new LocationDTO
+                {
+                    LocationID = l.LocationID,
+                    LocationName = l.LocationName,
+                    Description = l.Description,
+                    BranchID = l.BranchID,
+                    BranchName = l.Branch.BranchName
+                })
+                .ToListAsync();
+
+            ViewBag.DepartmentsByBranch = await _context.Departments
+                .OrderBy(d => d.DepartmentName)
+                .Select(d => new DepartmentDTO
+                {
+                    DepartmentID = d.DepartmentID,
+                    DepartmentName = d.DepartmentName,
+                    Description = d.Description,
+                    BranchID = d.BranchID,
+                    BranchName = d.Branch.BranchName
+                })
+                .ToListAsync();
         }
 
         // GET /Assets
@@ -105,6 +129,7 @@ namespace SchoolInventoryManagement.Web.Controllers
 
             try
             {
+                var savedPath = await SaveAssetImageAsync(model.ImageFile);
                 var dto = new CreateAssetDTO
                 {
                     AssetCode = model.AssetCode,
@@ -115,11 +140,10 @@ namespace SchoolInventoryManagement.Web.Controllers
                     AcquisitionDate = model.AcquisitionDate,
                     AcquisitionCost = model.AcquisitionCost,
                     WarrantyInformation = model.WarrantyInformation,
-                    ImageURL = model.ImageURL,
+                    ImageURL = savedPath,
                     QRCodeData = model.QRCodeData,
                     Condition = model.Condition,
                     CurrentLocationID = model.CurrentLocationID,
-                    DepartmentID = model.DepartmentID,
                     BranchID = model.BranchID
                 };
 
@@ -159,7 +183,7 @@ namespace SchoolInventoryManagement.Web.Controllers
                 WarrantyInformation = asset.WarrantyInformation,
                 ImageURL = asset.ImageURL,
                 CurrentLocationID = asset.CurrentLocationID,
-                DepartmentID = asset.DepartmentID,
+                BranchID = asset.BranchID, // NEW
                 RowVersionBase64 = RowVersionHelper.ToBase64(asset.RowVersion)
             };
 
@@ -172,28 +196,24 @@ namespace SchoolInventoryManagement.Web.Controllers
         [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
         public async Task<IActionResult> Edit(int id, AssetEditViewModel model)
         {
-            
             if (!ModelState.IsValid)
             {
                 await PopulateDropdownsAsync();
                 return View(model);
             }
-            
-
-
 
             try
-
             {
+                var newPath = await SaveAssetImageAsync(model.ImageFile);
                 var dto = new UpdateAssetDTO
                 {
                     AssetName = model.AssetName,
                     Description = model.Description,
                     SerialNumber = model.SerialNumber,
                     WarrantyInformation = model.WarrantyInformation,
-                    ImageURL = model.ImageURL,
+                    ImageURL = newPath ?? model.ImageURL,
                     CurrentLocationID = model.CurrentLocationID,
-                    DepartmentID = model.DepartmentID,
+                    BranchID = model.BranchID,
                     RowVersion = RowVersionHelper.FromBase64(model.RowVersionBase64)
                 };
 
@@ -206,9 +226,7 @@ namespace SchoolInventoryManagement.Web.Controllers
                 await PopulateDropdownsAsync();
                 return View(model);
             }
-
         }
-        
 
         // GET /Assets/Dispose/5
         [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
@@ -277,6 +295,7 @@ namespace SchoolInventoryManagement.Web.Controllers
 
             return RedirectToAction(nameof(Details), new { id });
         }
+
         public async Task<IActionResult> History(int id)
         {
             var asset = await _assetService.GetAssetByIdAsync(id);
@@ -296,6 +315,69 @@ namespace SchoolInventoryManagement.Web.Controllers
             };
 
             return View(model);
+        }
+
+        private const long MaxImageBytes = 5 * 1024 * 1024; // 5 MB
+        private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".webp" };
+
+        private async Task<string?> SaveAssetImageAsync(IFormFile? file)
+        {
+            if (file is null || file.Length == 0)
+                return null;
+
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(ext))
+                throw new ArgumentException("Only JPG, PNG, or WEBP images are allowed.");
+            if (file.Length > MaxImageBytes)
+                throw new ArgumentException("Image must be under 5 MB.");
+
+            var fileName = $"{Guid.NewGuid():N}{ext}";
+            var folder = Path.Combine("wwwroot", "images", "assets");
+            Directory.CreateDirectory(folder);
+            var fullPath = Path.Combine(folder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+                await file.CopyToAsync(stream);
+
+            return $"/images/assets/{fileName}";
+        }
+        // GET /Assets/QrCode/5 -- generates the PNG on demand, nothing stored.
+        // Works identically for an asset created five minutes ago or five years ago.
+        public async Task<IActionResult> QrCode(int id)
+        {
+            var asset = await _assetService.GetAssetByIdAsync(id);
+            if (asset is null)
+                return NotFound();
+
+            // Encode a full URL, not just the bare code -- so any generic phone
+            // camera app (not just this site's own scanner) opens straight to the
+            // asset on scan, no app install required.
+            var scanUrl = Url.Action(nameof(Scan), "Assets",
+                new { code = asset.AssetCode }, Request.Scheme)!;
+
+            using var generator = new QRCodeGenerator();
+            using var data = generator.CreateQrCode(scanUrl, QRCodeGenerator.ECCLevel.M);
+            var png = new PngByteQRCode(data).GetGraphic(20); // 20px per module
+
+            return File(png, "image/png");
+        }
+
+        // GET /Assets/Scan?code=AST-0001 -- what the QR actually encodes.
+        // Looked up by AssetCode (business key), not AssetID, so the QR keeps
+        // working even if internal IDs were ever renumbered.
+        public async Task<IActionResult> Scan(string code)
+        {
+            var results = await _assetService.SearchAssetsAsync(
+                code, null, null, null, null, null, null);
+            var asset = results.FirstOrDefault(a => a.AssetCode == code);
+
+            if (asset is null)
+            {
+                TempData["ErrorMessage"] = $"No asset found for code '{code}'.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction(nameof(Details), new { id = asset.AssetID });
         }
     }
 }

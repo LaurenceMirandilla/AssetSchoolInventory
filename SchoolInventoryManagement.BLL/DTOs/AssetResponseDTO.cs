@@ -28,7 +28,7 @@ namespace SchoolInventoryManagement.BLL.DTOs
         public string? AssignedUserName { get; set; }
         public int? DepartmentID { get; set; }
         public string? DepartmentName { get; set; }
-        public int BranchID { get; set; }
+        public int? BranchID { get; set; }
         public string BranchName { get; set; } = null!;
         public int? ActiveAssignmentID { get; set; }
 
