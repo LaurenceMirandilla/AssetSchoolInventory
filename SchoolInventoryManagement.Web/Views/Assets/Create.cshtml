@@ -101,10 +101,14 @@
             var locationSelect = document.getElementById('locationSelect');
             var departmentSelect = document.getElementById('departmentSelect');
 
+            if (!branchSelect) return;
+
             function filterByBranch() {
                 var branchId = branchSelect.value;
 
                 [locationSelect, departmentSelect].forEach(function(select) {
+                    if (!select) return; // Guard against missing elements on this view
+                    
                     Array.from(select.options).forEach(function(opt) {
                         if (!opt.value) { opt.hidden = false; return; } // keep "-- None --" always visible
                         opt.hidden = branchId === '' || opt.getAttribute('data-branch') !== branchId;

@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="QRCoder" Version="1.8.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="QRCoder" Version="1.8.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SchoolInventoryManagement.BLL\SchoolInventoryManagement.BLL.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SchoolInventoryManagement.BLL\SchoolInventoryManagement.BLL.csproj" />
+	</ItemGroup>
+
+	
 
 </Project>

@@ -11,6 +11,7 @@ using SchoolInventoryManagement.DAL.Entities.Enums;
 using SchoolInventoryManagement.Web.Helpers;
 using SchoolInventoryManagement.Web.ViewModels;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -27,19 +28,26 @@ namespace SchoolInventoryManagement.Web.Controllers
         private readonly IAssetService _assetService;
         private readonly ApplicationDbContext _context; // dropdown lookups only
         private readonly IDisposalService _disposalService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        // Matches the mockup's page size. Not the same number as the KPI
+        // tiles above it -- those are always the whole-inventory counts.
+        private const int PageSize = 20;
 
         public AssetsController(
             IAssetService assetService,
             IDisposalService disposalService,
             IAssetAssignmentService assignmentService,
             IAssetMovementService movementService,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IWebHostEnvironment webHostEnvironment)
         {
             _assetService = assetService;
             _disposalService = disposalService;
             _assignmentService = assignmentService;
             _movementService = movementService;
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         private int CurrentUserId =>
@@ -88,13 +96,106 @@ namespace SchoolInventoryManagement.Web.Controllers
                 .ToListAsync();
         }
 
-        // GET /Assets
-        public async Task<IActionResult> Index(string? keyword, int? categoryId, int? modelId, AssetStatus? status)
+        // Separate from PopulateDropdownsAsync above: that one feeds the
+        // Create/Edit forms (Models/Locations/Branches/Departments as
+        // create-time choices). This one feeds the Index page's FILTER row
+        // (Category/Department/Status/Condition), which is a different set
+        // of dropdowns with different selected-value handling.
+        private async Task PopulateFilterDropdownsAsync(
+            int? selectedCategoryId, int? selectedDepartmentId,
+            AssetStatus? selectedStatus, ConditionStatus? selectedCondition)
         {
-            var results = await _assetService.SearchAssetsAsync(
-                keyword, categoryId, modelId, null, null, status, null);
+            var categories = await _context.Categories.OrderBy(c => c.CategoryName).ToListAsync();
+            ViewBag.CategoryFilter = new SelectList(categories, "CategoryID", "CategoryName", selectedCategoryId);
 
-            return View(results);
+            var departments = await _context.Departments.OrderBy(d => d.DepartmentName).ToListAsync();
+            ViewBag.DepartmentFilter = new SelectList(departments, "DepartmentID", "DepartmentName", selectedDepartmentId);
+
+            ViewBag.StatusFilter = new SelectList(
+                Enum.GetValues(typeof(AssetStatus)).Cast<AssetStatus>()
+                    .Select(s => new { Value = s.ToString(), Text = s.ToString() }),
+                "Value", "Text", selectedStatus?.ToString());
+
+            ViewBag.ConditionFilter = new SelectList(
+                Enum.GetValues(typeof(ConditionStatus)).Cast<ConditionStatus>()
+                    .Select(c => new { Value = c.ToString(), Text = c.ToString() }),
+                "Value", "Text", selectedCondition?.ToString());
+        }
+
+        // GET /Assets
+        public async Task<IActionResult> Index(
+            string? keyword, int? categoryId, int? departmentId,
+            AssetStatus? status, ConditionStatus? condition, int page = 1)
+        {
+            // Whole-inventory counts for the KPI tiles -- deliberately NOT
+            // filtered, so the tiles read as fixed totals rather than
+            // reshaping themselves every time the table below is narrowed.
+            var allAssets = await _assetService.GetAllAssetsAsync();
+
+            var filtered = await _assetService.SearchAssetsAsync(
+                keyword, categoryId, null, null, departmentId, status, condition);
+
+            var currentPage = Math.Max(page, 1);
+            var totalFiltered = filtered.Count;
+
+            var paged = filtered
+                .Skip((currentPage - 1) * PageSize)
+                .Take(PageSize)
+                .ToList();
+
+            await PopulateFilterDropdownsAsync(categoryId, departmentId, status, condition);
+
+            var model = new AssetIndexViewModel
+            {
+                Assets = paged,
+                TotalCount = allAssets.Count,
+                AvailableCount = allAssets.Count(a => a.Status == AssetStatus.Available),
+                AssignedCount = allAssets.Count(a => a.Status == AssetStatus.Assigned),
+                UnderMaintenanceCount = allAssets.Count(a => a.Status == AssetStatus.UnderMaintenance),
+                DisposedCount = allAssets.Count(a => a.Status == AssetStatus.Disposed),
+                Keyword = keyword,
+                CategoryId = categoryId,
+                DepartmentId = departmentId,
+                Status = status,
+                Condition = condition,
+                Page = currentPage,
+                PageSize = PageSize,
+                TotalFilteredCount = totalFiltered
+            };
+
+            return View(model);
+        }
+
+        // GET /Assets/ExportAssets -- same filters as Index, no paging.
+        public async Task<IActionResult> ExportAssets(
+            string? keyword, int? categoryId, int? departmentId,
+            AssetStatus? status, ConditionStatus? condition)
+        {
+            var assets = await _assetService.SearchAssetsAsync(
+                keyword, categoryId, null, null, departmentId, status, condition);
+
+            var csv = CsvExportHelper.Build(
+                new[]
+                {
+                    "Code", "Name", "Model", "Category", "Status", "Condition",
+                    "Location", "Holder", "Department", "Branch", "Acquisition Cost"
+                },
+                assets.Select(a => new string?[]
+                {
+                    a.AssetCode,
+                    a.AssetName,
+                    a.ModelName,
+                    a.CategoryName,
+                    a.Status.ToString(),
+                    a.Condition.ToString(),
+                    a.CurrentLocationName,
+                    a.AssignedUserName,
+                    a.DepartmentName,
+                    a.BranchName,
+                    a.AcquisitionCost?.ToString("0.00", CultureInfo.InvariantCulture)
+                }));
+
+            return File(csv, "text/csv", CsvExportHelper.TimestampedFileName("assets"));
         }
 
         // GET /Assets/Details/5
@@ -183,7 +284,7 @@ namespace SchoolInventoryManagement.Web.Controllers
                 WarrantyInformation = asset.WarrantyInformation,
                 ImageURL = asset.ImageURL,
                 CurrentLocationID = asset.CurrentLocationID,
-                BranchID = asset.BranchID, // NEW
+                BranchID = asset.BranchID,
                 RowVersionBase64 = RowVersionHelper.ToBase64(asset.RowVersion)
             };
 
@@ -332,7 +433,15 @@ namespace SchoolInventoryManagement.Web.Controllers
                 throw new ArgumentException("Image must be under 5 MB.");
 
             var fileName = $"{Guid.NewGuid():N}{ext}";
-            var folder = Path.Combine("wwwroot", "images", "assets");
+
+            // WebRootPath (the real, absolute path to wwwroot) rather than a
+            // bare "wwwroot" string -- a relative path resolves against the
+            // process's current working directory, which is only the
+            // project folder by coincidence when running under the Visual
+            // Studio debugger. Anywhere else (dotnet run from elsewhere,
+            // IIS, a published build) it either writes to the wrong place
+            // or throws because that resolved path isn't writable.
+            var folder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "assets");
             Directory.CreateDirectory(folder);
             var fullPath = Path.Combine(folder, fileName);
 
@@ -341,30 +450,25 @@ namespace SchoolInventoryManagement.Web.Controllers
 
             return $"/images/assets/{fileName}";
         }
+
         // GET /Assets/QrCode/5 -- generates the PNG on demand, nothing stored.
-        // Works identically for an asset created five minutes ago or five years ago.
         public async Task<IActionResult> QrCode(int id)
         {
             var asset = await _assetService.GetAssetByIdAsync(id);
             if (asset is null)
                 return NotFound();
 
-            // Encode a full URL, not just the bare code -- so any generic phone
-            // camera app (not just this site's own scanner) opens straight to the
-            // asset on scan, no app install required.
             var scanUrl = Url.Action(nameof(Scan), "Assets",
                 new { code = asset.AssetCode }, Request.Scheme)!;
 
             using var generator = new QRCodeGenerator();
             using var data = generator.CreateQrCode(scanUrl, QRCodeGenerator.ECCLevel.M);
-            var png = new PngByteQRCode(data).GetGraphic(20); // 20px per module
+            var png = new PngByteQRCode(data).GetGraphic(20);
 
             return File(png, "image/png");
         }
 
-        // GET /Assets/Scan?code=AST-0001 -- what the QR actually encodes.
-        // Looked up by AssetCode (business key), not AssetID, so the QR keeps
-        // working even if internal IDs were ever renumbered.
+        // GET /Assets/Scan?code=AST-0001
         public async Task<IActionResult> Scan(string code)
         {
             var results = await _assetService.SearchAssetsAsync(
@@ -379,6 +483,7 @@ namespace SchoolInventoryManagement.Web.Controllers
 
             return RedirectToAction(nameof(Details), new { id = asset.AssetID });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
@@ -396,6 +501,7 @@ namespace SchoolInventoryManagement.Web.Controllers
 
             return RedirectToAction(nameof(Details), new { id });
         }
+
         // POST /Assets/ReturnToService/5
         [HttpPost]
         [ValidateAntiForgeryToken]
