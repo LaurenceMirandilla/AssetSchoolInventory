@@ -1,6 +1,6 @@
 ﻿@model List<SchoolInventoryManagement.BLL.DTOs.AssignmentReportRowDTO>
 @{
-    ViewData["Title"] = "Outstanding Assignments";
+    ViewData["Title"] = "Borrowed Items";
 }
 
 <div class="row g-3 sab-reports-grid">
@@ -10,7 +10,7 @@
     <div class="col-lg-9">
         <div class="sab-page-head">
             <div>
-                <h2>Outstanding Assignments</h2>
+                <h2>Borrowed Items</h2>
                 <p class="sab-page-sub">
                     Every asset currently out with someone — an assignment with no return date.
                     Oldest first, so the longest-held units are at the top.
@@ -45,7 +45,7 @@
 
         <div class="sab-table-card">
             <div class="sab-table-head">
-                <h5>Outstanding assignments</h5>
+                <h5>Borrowed items</h5>
                 <span class="sab-table-count">@Model.Count asset(s) currently out.</span>
             </div>
             <table class="table table-striped">
