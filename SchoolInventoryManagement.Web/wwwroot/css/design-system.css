@@ -1,0 +1,895 @@
+/* ==========================================================================
+   School Inventory — design system, component layer
+   --------------------------------------------------------------------------
+   Loaded AFTER bootstrap.min.css and site.css.
+
+   Rules this file follows, so it can never change a page that already works:
+     1. Every selector is a NEW class, prefixed .sab-. Nothing here restyles
+        a Bootstrap class or a class site.css already owns.
+     2. Tokens are added, never redefined. site.css:root still wins for the
+        colours it sets.
+     3. The only exception is the print block at the bottom, which hides the
+        navigation chrome on paper. It has no effect on screen.
+
+   Read docs/frontend-design.md for when to use what.
+   ========================================================================== */
+
+:root {
+    /* ---- Spacing scale ------------------------------------------------ */
+    --sab-space-1: 4px;
+    --sab-space-2: 8px;
+    --sab-space-3: 12px;
+    --sab-space-4: 16px;
+    --sab-space-5: 24px;
+    --sab-space-6: 32px;
+    --sab-space-7: 48px;
+
+    /* ---- Type scale ---------------------------------------------------
+       Deliberately short. Four sizes cover every screen in this app; a
+       fifth is how a UI starts drifting.                                  */
+    --sab-text-xs: 0.72rem;   /* table headers, pill text, metadata        */
+    --sab-text-sm: 0.82rem;   /* secondary lines, help text                */
+    --sab-text-base: 0.92rem; /* body, table cells, form controls          */
+    --sab-text-lg: 1.05rem;   /* section headings                          */
+    --sab-text-xl: 1.35rem;   /* page title                                */
+    --sab-text-stat: 1.9rem;  /* the number on a stat tile                 */
+
+    /* ---- Elevation ----------------------------------------------------- */
+    --sab-shadow-raised: 0 4px 12px rgba(16, 24, 40, 0.08);
+    --sab-shadow-overlay: 0 12px 32px rgba(16, 24, 40, 0.16);
+
+    /* ---- Focus ring ----------------------------------------------------
+       One ring, everywhere. Keyboard users need to see where they are,
+       and a ring that changes shape per component reads as a glitch.      */
+    --sab-focus-ring: 0 0 0 3px rgba(46, 125, 50, 0.28);
+}
+
+/* Applies the ring to new components only; Bootstrap keeps its own on
+   .form-control and .btn. :focus-visible means a mouse click does not
+   light it up, but Tab does. */
+.sab-focusable:focus-visible,
+.sab-stat:focus-visible,
+.sab-chip:focus-visible,
+.sab-row-link:focus-visible {
+    outline: none;
+    box-shadow: var(--sab-focus-ring);
+    border-radius: var(--sab-radius-sm);
+}
+
+/* Lets a keyboard user jump the sidebar. Visible only while focused. */
+.sab-skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 1080;
+    background: var(--sab-green-dark);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 0 0 var(--sab-radius-sm) 0;
+    font-size: var(--sab-text-sm);
+    font-weight: 600;
+}
+.sab-skip-link:focus {
+    left: 0;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Icons
+   --------------------------------------------------------------------------
+   Inline SVG sprite, no icon font and no CDN. Views/Shared/_Icons.cshtml
+   drops the sprite into the page once; each use is:
+
+     <svg class="sab-icon" aria-hidden="true"><use href="#i-box"></use></svg>
+
+   Icons are decorative here — every one sits next to a text label, so they
+   are hidden from screen readers. An icon-only control needs its own
+   aria-label on the BUTTON, not on the svg.
+   ========================================================================== */
+
+.sab-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: -0.2em;
+}
+.sab-icon-sm { width: 15px; height: 15px; }
+.sab-icon-lg { width: 22px; height: 22px; }
+.sab-icon-xl { width: 40px; height: 40px; stroke-width: 1.3; }
+
+/* ==========================================================================
+   Page header
+   --------------------------------------------------------------------------
+   Every list and detail screen opens the same way: title, one line of
+   context, actions pinned right. Today each view rebuilds this with its own
+   d-flex + inline gap.
+   ========================================================================== */
+
+.sab-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--sab-space-3);
+    margin-bottom: var(--sab-space-5);
+}
+.sab-page-header-text { min-width: 0; }
+.sab-page-title {
+    font-size: var(--sab-text-xl);
+    font-weight: 700;
+    color: var(--sab-text);
+    margin: 0 0 2px;
+    display: flex;
+    align-items: center;
+    gap: var(--sab-space-2);
+}
+.sab-page-subtitle {
+    font-size: var(--sab-text-base);
+    color: var(--sab-text-muted);
+    margin: 0;
+}
+.sab-page-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--sab-space-2);
+    flex-wrap: wrap;
+}
+
+/* Breadcrumb for the third level only (asset -> history, request -> approve).
+   Two levels do not need one; the sidebar already says where you are. */
+.sab-crumbs {
+    display: flex;
+    align-items: center;
+    gap: var(--sab-space-2);
+    font-size: var(--sab-text-sm);
+    color: var(--sab-text-muted);
+    margin-bottom: var(--sab-space-2);
+    padding: 0;
+    list-style: none;
+}
+.sab-crumbs a { color: var(--sab-text-muted); }
+.sab-crumbs a:hover { color: var(--sab-green-dark); }
+.sab-crumbs li::after {
+    content: "/";
+    margin-left: var(--sab-space-2);
+    color: var(--sab-text-faint);
+}
+.sab-crumbs li:last-child::after { content: none; }
+
+/* ==========================================================================
+   Section / card
+   --------------------------------------------------------------------------
+   .card from Bootstrap already carries the right border and shadow via
+   site.css. This adds the header and footer rows the app keeps hand-rolling.
+   ========================================================================== */
+
+.sab-section {
+    background: var(--sab-surface);
+    border: 1px solid var(--sab-border);
+    border-radius: var(--sab-radius);
+    box-shadow: var(--sab-shadow);
+    margin-bottom: var(--sab-space-4);
+}
+.sab-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sab-space-3);
+    padding: var(--sab-space-4) var(--sab-space-5);
+    border-bottom: 1px solid var(--sab-border);
+}
+.sab-section-title {
+    font-size: var(--sab-text-lg);
+    font-weight: 600;
+    color: var(--sab-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--sab-space-2);
+}
+.sab-section-body { padding: var(--sab-space-5); }
+.sab-section-body-flush { padding: 0; }
+.sab-section-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sab-space-3);
+    padding: var(--sab-space-3) var(--sab-space-5);
+    border-top: 1px solid var(--sab-border);
+    background: var(--sab-bg);
+    border-radius: 0 0 var(--sab-radius) var(--sab-radius);
+    font-size: var(--sab-text-sm);
+    color: var(--sab-text-muted);
+}
+
+/* ==========================================================================
+   Stat tiles
+   --------------------------------------------------------------------------
+   Generalises .report-tile from site.css. The difference that matters:
+   a tile can be a LINK that filters the list below it (Assets/Index already
+   does this), and the selected one has to look selected — today that is an
+   inline `border border-2` with an inline colour.
+   ========================================================================== */
+
+.sab-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--sab-space-3);
+    margin-bottom: var(--sab-space-5);
+}
+.sab-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--sab-surface);
+    border: 1px solid var(--sab-border);
+    border-radius: var(--sab-radius);
+    box-shadow: var(--sab-shadow);
+    padding: var(--sab-space-4) var(--sab-space-4) var(--sab-space-3);
+    color: inherit;
+    text-decoration: none;
+}
+a.sab-stat:hover {
+    text-decoration: none;
+    border-color: var(--sab-green-border);
+    box-shadow: var(--sab-shadow-raised);
+    color: inherit;
+}
+.sab-stat.is-active {
+    border-color: var(--sab-green);
+    box-shadow: inset 0 0 0 1px var(--sab-green);
+}
+.sab-stat-value {
+    order: 1;
+    font-size: var(--sab-text-stat);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--sab-text);
+}
+.sab-stat-label {
+    order: 2;
+    font-size: var(--sab-text-sm);
+    color: var(--sab-text-muted);
+    padding-top: var(--sab-space-2);
+    margin-top: var(--sab-space-2);
+    border-top: 1px solid var(--sab-border);
+}
+.sab-stat-note {
+    order: 3;
+    font-size: var(--sab-text-xs);
+    color: var(--sab-text-muted);
+}
+/* Optional leading icon, tinted by meaning rather than decoration. */
+.sab-stat-icon {
+    order: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sab-green-light);
+    color: var(--sab-green-dark);
+    margin-bottom: var(--sab-space-2);
+}
+.sab-stat-icon-amber { background: var(--sab-amber-bg); color: var(--sab-amber-text); }
+.sab-stat-icon-blue { background: var(--sab-blue-bg); color: var(--sab-blue-text); }
+.sab-stat-icon-red { background: var(--sab-red-bg); color: var(--sab-red-text); }
+.sab-stat-icon-gray { background: var(--sab-gray-bg); color: var(--sab-gray-text); }
+
+/* ==========================================================================
+   Filter bar
+   --------------------------------------------------------------------------
+   A GET form. It stays a GET form — the URL is the filter state, which is
+   what makes a filtered list bookmarkable, shareable with the Asset Officer,
+   and correct on back-button. No JS is required for it to work; ui.js only
+   removes the need to press Apply.
+   ========================================================================== */
+
+.sab-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--sab-space-3);
+    padding: var(--sab-space-4);
+    background: var(--sab-surface);
+    border: 1px solid var(--sab-border);
+    border-radius: var(--sab-radius);
+    margin-bottom: var(--sab-space-3);
+}
+.sab-filter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sab-space-1);
+    min-width: 160px;
+    flex: 0 1 auto;
+}
+.sab-filter-wide { min-width: 240px; flex: 1 1 240px; }
+.sab-filter-label {
+    font-size: var(--sab-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--sab-text-muted);
+}
+.sab-filter-actions {
+    display: flex;
+    gap: var(--sab-space-2);
+    margin-left: auto;
+}
+
+/* Search box with a leading icon, for inside a filter bar. */
+.sab-search-field { position: relative; }
+.sab-search-field .sab-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--sab-text-faint);
+    pointer-events: none;
+}
+.sab-search-field .form-control { padding-left: 34px; }
+
+/* Applied-filter chips: what is currently narrowing the list, each one
+   removable. Without these a user who filtered three fields and got two rows
+   has to re-read five dropdowns to understand why. */
+.sab-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sab-space-2);
+    margin-bottom: var(--sab-space-3);
+}
+.sab-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 11px;
+    border-radius: 999px;
+    background: var(--sab-green-light);
+    border: 1px solid var(--sab-green-border);
+    color: var(--sab-green-dark);
+    font-size: var(--sab-text-xs);
+    font-weight: 600;
+    text-decoration: none;
+}
+.sab-chip:hover { text-decoration: none; color: var(--sab-green-dark); background: #dcefdd; }
+.sab-chip-label { color: var(--sab-text-muted); font-weight: 500; }
+.sab-chip-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(27, 94, 32, 0.12);
+    font-size: 0.7rem;
+    line-height: 1;
+}
+
+/* ==========================================================================
+   Data table
+   --------------------------------------------------------------------------
+   The table itself stays a plain Bootstrap .table (site.css already styles
+   the head and stripes). This wraps it in a card with a result count above
+   and pagination below, so the count, the rows and the pager read as one
+   object instead of three loose blocks.
+   ========================================================================== */
+
+.sab-table-card { overflow: hidden; }
+.sab-table-card .table { margin-bottom: 0; }
+.sab-table-card .table > :not(caption) > * > * { padding: 12px 20px; }
+.sab-table-card .table thead th {
+    background: var(--sab-bg);
+    border-bottom: 1px solid var(--sab-border);
+    white-space: nowrap;
+}
+
+/* Sortable column header. A link, so sorting survives without JS and the
+   sorted URL can be shared. */
+.sab-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: inherit;
+    text-decoration: none;
+}
+.sab-sort:hover { color: var(--sab-green-dark); text-decoration: none; }
+.sab-sort-arrow { opacity: 0.35; }
+.sab-sort.is-sorted { color: var(--sab-green-dark); }
+.sab-sort.is-sorted .sab-sort-arrow { opacity: 1; }
+
+/* Primary cell: strong first line, muted second line. Used for
+   asset name + model/serial, user name + email, request + requester. */
+.sab-cell-primary { font-weight: 600; color: var(--sab-text); }
+.sab-cell-secondary {
+    font-size: var(--sab-text-sm);
+    color: var(--sab-text-muted);
+}
+.sab-cell-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: var(--sab-text-sm);
+}
+.sab-cell-actions { text-align: right; white-space: nowrap; }
+.sab-cell-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Person cell: initials avatar + name, already used inline in two views. */
+.sab-person {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sab-space-2);
+}
+.sab-person .sab-avatar-sm {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--sab-green);
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Whole row clickable without nesting a link in every cell. */
+.sab-row-link { cursor: pointer; }
+.sab-row-link:hover { background: var(--sab-green-light) !important; }
+
+/* Below ~760px a wide table stops being a table. Cards are the fallback:
+   each row becomes a stacked block with its header as a label. Requires
+   data-label on each td — see docs/frontend-design.md. */
+@media (max-width: 760px) {
+    .sab-table-stack thead { display: none; }
+    .sab-table-stack tbody tr {
+        display: block;
+        padding: var(--sab-space-3) var(--sab-space-4);
+        border-bottom: 1px solid var(--sab-border);
+    }
+    .sab-table-stack tbody td {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--sab-space-4);
+        padding: 3px 0 !important;
+        border: none;
+    }
+    .sab-table-stack tbody td::before {
+        content: attr(data-label);
+        font-size: var(--sab-text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--sab-text-muted);
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .sab-table-stack .sab-cell-actions { justify-content: flex-end; }
+}
+
+/* ==========================================================================
+   Empty / error states
+   --------------------------------------------------------------------------
+   Three different nothings, and they must not look alike:
+     .sab-empty              — nothing exists yet. Offer the action that
+                               creates the first one.
+     .sab-empty-filtered     — things exist, the filter hid them. Offer to
+                               clear the filter. Never offer "create".
+     .sab-empty-denied       — it exists and is not yours to see.
+   ========================================================================== */
+
+.sab-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--sab-space-7) var(--sab-space-5);
+    color: var(--sab-text-muted);
+}
+.sab-empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--sab-bg);
+    color: var(--sab-text-faint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--sab-space-4);
+}
+.sab-empty-title {
+    font-size: var(--sab-text-lg);
+    font-weight: 600;
+    color: var(--sab-text);
+    margin-bottom: var(--sab-space-1);
+}
+.sab-empty-text {
+    font-size: var(--sab-text-base);
+    max-width: 420px;
+    margin-bottom: var(--sab-space-4);
+}
+.sab-empty-filtered .sab-empty-icon { background: var(--sab-amber-bg); color: var(--sab-amber-text); }
+.sab-empty-denied .sab-empty-icon { background: var(--sab-red-bg); color: var(--sab-red-text); }
+
+/* ==========================================================================
+   Detail page
+   --------------------------------------------------------------------------
+   Asset, request and user detail all have the same shape: an identity
+   header, facts on the left, actions and history on the right.
+   ========================================================================== */
+
+.sab-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: var(--sab-space-4);
+    align-items: start;
+}
+@media (max-width: 992px) {
+    .sab-detail { grid-template-columns: minmax(0, 1fr); }
+}
+
+.sab-identity {
+    display: flex;
+    gap: var(--sab-space-4);
+    align-items: flex-start;
+}
+.sab-identity-media {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--sab-radius);
+    border: 1px solid var(--sab-border);
+    background: var(--sab-bg);
+    object-fit: cover;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sab-text-faint);
+}
+.sab-identity-meta { min-width: 0; }
+.sab-identity-name {
+    font-size: var(--sab-text-lg);
+    font-weight: 700;
+    margin: 0 0 2px;
+}
+.sab-identity-sub {
+    font-size: var(--sab-text-sm);
+    color: var(--sab-text-muted);
+    margin: 0 0 var(--sab-space-3);
+}
+.sab-identity-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Key/value facts. Two columns on a wide screen, one when narrow. */
+.sab-dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sab-space-4) var(--sab-space-5);
+    margin: 0;
+}
+.sab-dl-item { min-width: 0; }
+.sab-dl-term {
+    display: block;
+    font-size: var(--sab-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    color: var(--sab-text-muted);
+    margin-bottom: 2px;
+}
+.sab-dl-value {
+    font-size: var(--sab-text-base);
+    color: var(--sab-text);
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.sab-dl-value-empty { color: var(--sab-text-muted); }
+
+/* Stacked action buttons in the right rail, each with a one-line reason. */
+.sab-actions-stack { display: flex; flex-direction: column; gap: var(--sab-space-2); }
+.sab-actions-stack .btn { width: 100%; justify-content: center; }
+.sab-action-note {
+    font-size: var(--sab-text-xs);
+    color: var(--sab-text-muted);
+    margin: -2px 0 var(--sab-space-2);
+}
+
+/* ==========================================================================
+   Timeline — asset history
+   --------------------------------------------------------------------------
+   Assignments, movements, disposals and audit entries on one spine, newest
+   first. The dot colour carries the event type; the label repeats it in
+   words, because colour alone is not a label.
+   ========================================================================== */
+
+.sab-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 var(--sab-space-5);
+    position: relative;
+}
+.sab-timeline::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--sab-border);
+}
+.sab-timeline-item {
+    position: relative;
+    padding-bottom: var(--sab-space-4);
+}
+.sab-timeline-item:last-child { padding-bottom: 0; }
+.sab-timeline-dot {
+    position: absolute;
+    left: calc(var(--sab-space-5) * -1);
+    top: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--sab-surface);
+    border: 3px solid var(--sab-green);
+}
+.sab-timeline-dot-blue { border-color: var(--sab-blue-text); }
+.sab-timeline-dot-amber { border-color: var(--sab-amber-text); }
+.sab-timeline-dot-red { border-color: var(--sab-red-text); }
+.sab-timeline-dot-gray { border-color: var(--sab-text-faint); }
+.sab-timeline-title {
+    font-size: var(--sab-text-base);
+    font-weight: 600;
+    color: var(--sab-text);
+    margin: 0;
+}
+.sab-timeline-meta {
+    font-size: var(--sab-text-sm);
+    color: var(--sab-text-muted);
+    margin: 0;
+}
+.sab-timeline-time {
+    font-size: var(--sab-text-xs);
+    color: var(--sab-text-muted);
+}
+
+/* Compact activity list (dashboard right rail). */
+.sab-activity { display: flex; flex-direction: column; gap: var(--sab-space-3); }
+.sab-activity-item { display: flex; gap: var(--sab-space-3); }
+.sab-activity-text { font-size: var(--sab-text-sm); line-height: 1.45; min-width: 0; }
+.sab-activity-time { font-size: var(--sab-text-xs); color: var(--sab-text-muted); }
+
+/* ==========================================================================
+   Forms
+   --------------------------------------------------------------------------
+   One column, grouped in fieldsets, actions at the bottom left-aligned with
+   the fields. Two-column forms read fast and get filled wrong.
+   ========================================================================== */
+
+.sab-form { max-width: 720px; }
+.sab-form-wide { max-width: 960px; }
+.sab-fieldset { border: none; padding: 0; margin: 0 0 var(--sab-space-5); }
+.sab-fieldset-legend {
+    font-size: var(--sab-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sab-text-muted);
+    padding: 0 0 var(--sab-space-3);
+    border-bottom: 1px solid var(--sab-border);
+    margin-bottom: var(--sab-space-4);
+    width: 100%;
+}
+.sab-field { margin-bottom: var(--sab-space-4); }
+.sab-field-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--sab-space-4);
+}
+/* Required marker: an asterisk alone is a convention, not information.
+   Pair it with the word in the label for anything destructive or legal. */
+.sab-required { color: var(--sab-red-text); margin-left: 2px; }
+.sab-optional {
+    font-weight: 500;
+    color: var(--sab-text-muted);
+    font-size: var(--sab-text-xs);
+    margin-left: 6px;
+}
+.sab-form-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--sab-space-2);
+    padding-top: var(--sab-space-4);
+    border-top: 1px solid var(--sab-border);
+}
+.sab-form-actions-spacer { margin-left: auto; }
+
+/* Read-only context inside a form: what you are acting ON. Every approve,
+   assign, transfer and dispose form needs this — deciding on a request
+   while the asset's details are on the previous page is how the wrong unit
+   gets issued. */
+.sab-context {
+    background: var(--sab-bg);
+    border: 1px solid var(--sab-border);
+    border-radius: var(--sab-radius);
+    padding: var(--sab-space-4);
+    margin-bottom: var(--sab-space-5);
+}
+.sab-context-title {
+    font-size: var(--sab-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--sab-text-muted);
+    margin-bottom: var(--sab-space-3);
+}
+
+/* ==========================================================================
+   Flash messages
+   --------------------------------------------------------------------------
+   TempData["StatusMessage"] renders here. Icon + text + dismiss; the icon
+   is what makes success/failure readable without relying on colour.
+   ========================================================================== */
+
+.sab-flash {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sab-space-3);
+    padding: var(--sab-space-3) var(--sab-space-4);
+    border-radius: var(--sab-radius);
+    border: 1px solid var(--sab-green-border);
+    background: var(--sab-green-light);
+    color: var(--sab-green-dark);
+    font-size: var(--sab-text-base);
+    margin-bottom: var(--sab-space-4);
+}
+.sab-flash-error { background: var(--sab-red-bg); border-color: #f6cfcd; color: var(--sab-red-text); }
+.sab-flash-warn { background: var(--sab-amber-bg); border-color: #f3e3c2; color: var(--sab-amber-text); }
+.sab-flash-info { background: var(--sab-blue-bg); border-color: #cfe6f2; color: var(--sab-blue-text); }
+.sab-flash-body { flex: 1 1 auto; min-width: 0; }
+.sab-flash-title { font-weight: 600; }
+
+/* ==========================================================================
+   Bar list — "assets by category", currently inline-styled on the dashboard
+   ========================================================================== */
+
+.sab-bars { display: flex; flex-direction: column; gap: var(--sab-space-2); }
+.sab-bar-row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: var(--sab-space-3);
+}
+.sab-bar-label {
+    font-size: var(--sab-text-sm);
+    color: var(--sab-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sab-bar-track {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--sab-bg);
+    overflow: hidden;
+}
+.sab-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--sab-green);
+}
+.sab-bar-value {
+    font-size: var(--sab-text-sm);
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Sidebar additions
+   --------------------------------------------------------------------------
+   The count badge already exists (.sab-nav-badge). These add the mobile
+   toggle: under 900px the sidebar becomes a Bootstrap offcanvas rather than
+   a horizontally scrolling strip of links, which is unusable at 360px.
+   ========================================================================== */
+
+.sab-sidebar-toggle {
+    display: none;
+    background: none;
+    border: 1px solid var(--sab-border);
+    border-radius: var(--sab-radius-sm);
+    padding: 6px 9px;
+    color: var(--sab-text);
+    line-height: 1;
+}
+@media (max-width: 900px) {
+    .sab-sidebar-toggle { display: inline-flex; align-items: center; }
+}
+
+/* ==========================================================================
+   Print — reports and the asset detail sheet
+   --------------------------------------------------------------------------
+   The ONLY block in this file that touches existing classes, and only on
+   paper. An Asset Officer printing the outstanding-assignments report for a
+   department head should get the table, not the navigation.
+   ========================================================================== */
+
+@media print {
+    .sab-sidebar,
+    .sab-topbar,
+    .sab-page-actions,
+    .sab-filters,
+    .sab-chips,
+    .sab-sidebar-cta,
+    .sab-form-actions,
+    .footer,
+    .sab-no-print { display: none !important; }
+
+    .sab-shell { display: block; }
+    .sab-content { padding: 0; }
+    .sab-section, .card, .sab-stat {
+        box-shadow: none;
+        border-color: #cfcfcf;
+        break-inside: avoid;
+    }
+    .table { font-size: 10pt; }
+    .table thead { display: table-header-group; }
+    tr { break-inside: avoid; }
+    a { color: inherit !important; text-decoration: none !important; }
+    body { background: #fff; }
+
+    /* Printed reports need to say what they are and when they were run —
+       add this element in the view, hidden on screen. */
+    .sab-print-header { display: block !important; margin-bottom: 16px; }
+}
+.sab-print-header { display: none; }
+
+/* ==========================================================================
+   Mobile drawer (opt-in)
+   --------------------------------------------------------------------------
+   Add .sab-drawer to the <aside class="sab-sidebar"> and the mobile
+   behaviour changes from "horizontally scrolling strip of links" to a real
+   slide-in drawer. Opt-in via the extra class, so the current behaviour is
+   untouched until a view asks for it. ui.js drives .is-open.
+
+   Higher specificity than site.css's own max-width:900px rules, which is
+   what lets this override them without !important.
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .sab-sidebar.sab-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1045;
+        width: 280px;
+        height: 100vh;
+        flex-direction: column;
+        padding: 20px 14px;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.22s ease;
+        box-shadow: var(--sab-shadow-overlay);
+    }
+    .sab-sidebar.sab-drawer.is-open { transform: translateX(0); }
+    .sab-sidebar.sab-drawer .sab-nav { display: block; flex: 1 1 auto; }
+    .sab-sidebar.sab-drawer .sab-nav-heading { display: block; }
+    .sab-sidebar.sab-drawer .sab-sidebar-cta { display: flex; }
+    .sab-sidebar.sab-drawer .sab-brand { padding: 4px 8px 20px; }
+
+    .sab-drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1040;
+        background: rgba(16, 24, 40, 0.45);
+    }
+}
+
+/* Motion: respect the OS setting. Nothing here is essential animation. */
+@media (prefers-reduced-motion: reduce) {
+    .sab-sidebar.sab-drawer { transition: none; }
+}

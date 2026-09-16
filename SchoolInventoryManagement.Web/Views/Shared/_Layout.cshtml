@@ -7,9 +7,12 @@
     <title>@ViewData["Title"] - School Inventory Management</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/design-system.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SchoolInventoryManagement.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
+<partial name="_Icons" />
+<a class="sab-skip-link" href="#main-content">Skip to content</a>
 @{
     var isAuthed = User.Identity?.IsAuthenticated == true;
     var isApprover = User.IsInRole("Asset Officer") || User.IsInRole("Administrator") || User.IsInRole("Principal");
@@ -178,7 +181,7 @@
             </div>
         </header>
 
-        <main class="sab-content">
+        <main class="sab-content" id="main-content">
             @if (TempData["StatusMessage"] != null)
             {
                 <div class="alert alert-success">@TempData["StatusMessage"]</div>
@@ -195,6 +198,7 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/ui.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -19,7 +19,10 @@
     --sab-text-muted: #6b7280;
     --sab-text-faint: #9ca3af;
     --sab-amber-bg: #fdf3e0;
-    --sab-amber-text: #9a6a17;
+    /* Darkened from #9a6a17: status-pill text is 12px bold, which does not
+       qualify as WCAG "large text", and the old value measured 4.29:1 on the
+       amber pill background. This is 5.17:1. */
+    --sab-amber-text: #8a5e14;
     --sab-red-bg: #fdeaea;
     --sab-red-text: #b3261e;
     --sab-purple-bg: #f1eafc;

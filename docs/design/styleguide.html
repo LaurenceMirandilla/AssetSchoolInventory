@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Style guide — School Inventory</title>
+<!-- The real stylesheets, straight out of wwwroot. If a swatch here is wrong,
+     the app is wrong too. Open this file directly in a browser. -->
+<link rel="stylesheet" href="../../SchoolInventoryManagement.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="../../SchoolInventoryManagement.Web/wwwroot/css/site.css" />
+<link rel="stylesheet" href="../../SchoolInventoryManagement.Web/wwwroot/css/design-system.css" />
+<style>
+    /* Style-guide chrome only — none of this ships. */
+    body { background: var(--sab-bg); }
+    .sg-wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+    .sg-head { margin-bottom: 40px; }
+    .sg-head h1 { font-size: 1.7rem; font-weight: 700; margin-bottom: 6px; }
+    .sg-block { background: #fff; border: 1px solid var(--sab-border); border-radius: 10px; margin-bottom: 28px; overflow: hidden; }
+    .sg-block > h2 { font-size: 1.05rem; font-weight: 700; margin: 0; padding: 16px 24px; border-bottom: 1px solid var(--sab-border); background: #fafbfa; }
+    .sg-block > .sg-body { padding: 24px; }
+    .sg-note { font-size: 0.86rem; color: var(--sab-text-muted); margin: 0 0 18px; max-width: 70ch; }
+    .sg-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: var(--sab-text-faint); margin: 24px 0 10px; }
+    .sg-label:first-child { margin-top: 0; }
+    code { background: var(--sab-green-light); color: var(--sab-green-dark); padding: 1px 6px; border-radius: 4px; font-size: 0.82rem; }
+    .sg-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .sg-swatch { border: 1px solid var(--sab-border); border-radius: 8px; overflow: hidden; }
+    .sg-swatch-chip { height: 56px; }
+    .sg-swatch-meta { padding: 8px 10px; font-size: 0.74rem; line-height: 1.5; }
+    .sg-swatch-meta b { display: block; font-size: 0.78rem; }
+    .sg-swatch-meta span { color: var(--sab-text-faint); font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .sg-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+    .sg-icon-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px; border: 1px solid var(--sab-border); border-radius: 8px; font-size: 0.68rem; color: var(--sab-text-muted); text-align: center; }
+    .sg-toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+    .sg-toc a { font-size: 0.8rem; padding: 5px 12px; border: 1px solid var(--sab-border); border-radius: 999px; background: #fff; color: var(--sab-text-muted); }
+    .sg-toc a:hover { border-color: var(--sab-green-border); color: var(--sab-green-dark); text-decoration: none; }
+    .sg-demo-bg { background: var(--sab-bg); border-radius: 8px; padding: 20px; }
+</style>
+</head>
+<body>
+<!-- Copy of the sprite from Views/Shared/_Icons.cshtml (the source of truth).
+     Browsers block external SVG <use> over file://, so the mockups inline it. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" focusable="false">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-6h5v6"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 21 7.5v9L12 21l-9-4.5v-9L12 3Z"/><path d="M3 7.5 12 12l9-4.5"/><path d="M12 12v9"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M5 5h14l2 8v6H3v-6L5 5Z"/><path d="M3 13h5l1.5 3h5L16 13h5"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.4 2.6 2.6 5.2-5.4"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><rect x="7.5" y="12" width="3" height="5" rx="1"/><rect x="12.5" y="8" width="3" height="9" rx="1"/><rect x="17.5" y="10" width="3" height="7" rx="1"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 11.2V4.5a1 1 0 0 1 1-1h6.7a1 1 0 0 1 .7.3l8.3 8.3a1 1 0 0 1 0 1.4l-6.7 6.7a1 1 0 0 1-1.4 0L3.8 11.9a1 1 0 0 1-.3-.7Z"/><circle cx="7.6" cy="7.6" r="1.3"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/><path d="M16 5.2a3.4 3.4 0 0 1 0 6.6"/><path d="M18 15c2 .8 3.3 2.4 3.3 4.6"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h7A1.5 1.5 0 0 1 14 5.5V21"/><path d="M14 10h4.5A1.5 1.5 0 0 1 20 11.5V21"/><path d="M3 21h18"/><path d="M7.5 8h3M7.5 12h3M7.5 16h3M17 14.5h.8M17 17.5h.8"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-1.5 2.5h15L18 16Z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3.5v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 19.5h15"/></symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24"><path d="M7 9V3.5h10V9"/><path d="M7 18H4.5v-6A1.5 1.5 0 0 1 6 10.5h12a1.5 1.5 0 0 1 1.5 1.5v6H17"/><rect x="7" y="14.5" width="10" height="6" rx="1"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3.5 5.5h17L14 13v6l-4 2v-8L3.5 5.5Z"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M4.5 12h15"/><path d="m13.5 6 6 6-6 6"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9.5 6 6 6-6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10.2v3.6"/><circle cx="12" cy="16.9" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11.5v5"/><circle cx="12" cy="8.2" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h3v3h-3zM19 14h1.5M14 20.5h6.5M19.5 17.5v3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 6.5h15"/><path d="M9.5 6.5V4.8a1.3 1.3 0 0 1 1.3-1.3h2.4a1.3 1.3 0 0 1 1.3 1.3v1.7"/><path d="m6.5 6.5 1.1 13.2a1.3 1.3 0 0 0 1.3 1.2h6.2a1.3 1.3 0 0 0 1.3-1.2L17.5 6.5"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19.2 8.8a2.1 2.1 0 0 0-3-3L5 17v3Z"/><path d="m14.7 7.3 3 3"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9.5 21H5.5A1.5 1.5 0 0 1 4 19.5v-15A1.5 1.5 0 0 1 5.5 3h4"/><path d="m15 16.5 4.5-4.5L15 7.5"/><path d="M19.5 12h-11"/></symbol>
+    <symbol id="i-transfer" viewBox="0 0 24 24"><path d="M4 8.5h13"/><path d="M13.5 5 17 8.5 13.5 12"/><path d="M20 15.5H7"/><path d="M10.5 12 7 15.5 10.5 19"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="4.5" rx="1"/><path d="M5.5 9v10.5h13V9"/><path d="M9.8 13h4.4"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M15.5 3.5a5 5 0 0 0-4.6 7l-7 7 2.6 2.6 7-7a5 5 0 0 0 6.4-6.2l-3 3-2.8-2.8 3-3a5 5 0 0 0-1.6-.6Z"/></symbol>
+    <symbol id="i-user-check" viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.6"/><path d="M3.5 20.5c0-3.5 2.9-5.7 6.5-5.7 1 0 2 .2 2.8.5"/><path d="m15 17.8 2.2 2.2 4-4.2"/></symbol>
+</svg>
+
+
+<div class="sg-wrap">
+
+    <header class="sg-head">
+        <h1>School Inventory — style guide</h1>
+        <p class="sg-note">
+            Every component below is rendered by the app's own
+            <code>site.css</code> and <code>design-system.css</code>. This page adds no styles of
+            its own beyond its own page chrome, so what you see here is what a view gets.
+            Companion files: <a href="screens.html">screens.html</a> (page blueprints) and
+            <a href="../frontend-design.md">frontend-design.md</a> (the reasoning and the Razor snippets).
+        </p>
+    </header>
+
+    <nav class="sg-toc">
+        <a href="#color">Colour</a>
+        <a href="#type">Type</a>
+        <a href="#icons">Icons</a>
+        <a href="#status">Status pills</a>
+        <a href="#buttons">Buttons</a>
+        <a href="#header">Page header</a>
+        <a href="#stats">Stat tiles</a>
+        <a href="#filters">Filters</a>
+        <a href="#table">Tables</a>
+        <a href="#empty">Empty states</a>
+        <a href="#detail">Detail</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#forms">Forms</a>
+        <a href="#flash">Flash</a>
+    </nav>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="color">
+        <h2>Colour</h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                Green is the institutional colour and carries one meaning only: <em>this is an action you
+                can take</em>, plus "good" in a status. It is never decoration. Greys carry structure,
+                and the four accent hues carry status — amber waiting, blue in-hand, red wrong,
+                purple in-motion, grey ended.
+            </p>
+
+            <div class="sg-label">Brand</div>
+            <div class="sg-swatches">
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#2E7D32"></div><div class="sg-swatch-meta"><b>Green</b><span>--sab-green<br />#2E7D32</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#1B5E20"></div><div class="sg-swatch-meta"><b>Green dark</b><span>--sab-green-dark<br />#1B5E20</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#144a19"></div><div class="sg-swatch-meta"><b>Green darker</b><span>--sab-green-darker<br />#144a19</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#E8F5E9"></div><div class="sg-swatch-meta"><b>Green light</b><span>--sab-green-light<br />#E8F5E9</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#A5D6A7"></div><div class="sg-swatch-meta"><b>Green border</b><span>--sab-green-border<br />#A5D6A7</span></div></div>
+            </div>
+
+            <div class="sg-label">Surfaces &amp; text</div>
+            <div class="sg-swatches">
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#F5F5F5"></div><div class="sg-swatch-meta"><b>Page</b><span>--sab-bg</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#ffffff;border-bottom:1px solid #e5e7eb"></div><div class="sg-swatch-meta"><b>Surface</b><span>--sab-surface</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#e5e7eb"></div><div class="sg-swatch-meta"><b>Border</b><span>--sab-border</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#1f2937"></div><div class="sg-swatch-meta"><b>Text</b><span>--sab-text</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#6b7280"></div><div class="sg-swatch-meta"><b>Muted</b><span>--sab-text-muted</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#9ca3af"></div><div class="sg-swatch-meta"><b>Faint</b><span>--sab-text-faint</span></div></div>
+            </div>
+
+            <div class="sg-label">Status accents</div>
+            <div class="sg-swatches">
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#fdf3e0;color:#9a6a17;display:flex;align-items:center;justify-content:center;font-weight:700">Waiting</div><div class="sg-swatch-meta"><b>Amber</b><span>Pending, maintenance</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#e8f3fb;color:#2a6f97;display:flex;align-items:center;justify-content:center;font-weight:700">In hand</div><div class="sg-swatch-meta"><b>Blue</b><span>Assigned, Borrow</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#f1eafc;color:#6b3fa0;display:flex;align-items:center;justify-content:center;font-weight:700">Moving</div><div class="sg-swatch-meta"><b>Purple</b><span>InTransit, Transfer</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#fdeaea;color:#b3261e;display:flex;align-items:center;justify-content:center;font-weight:700">Wrong</div><div class="sg-swatch-meta"><b>Red</b><span>Lost, Damaged, Rejected</span></div></div>
+                <div class="sg-swatch"><div class="sg-swatch-chip" style="background:#eef0f2;color:#5b6472;display:flex;align-items:center;justify-content:center;font-weight:700">Ended</div><div class="sg-swatch-meta"><b>Grey</b><span>Disposed, Cancelled</span></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="type">
+        <h2>Type</h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                System font stack, five sizes, three weights (500/600/700). Numbers in tables use
+                tabular figures via <code>.sab-cell-num</code> so columns of costs and counts line up.
+            </p>
+            <div style="font-size:var(--sab-text-xl);font-weight:700;margin-bottom:6px;">Page title — 1.35rem / 700 <code>--sab-text-xl</code></div>
+            <div style="font-size:var(--sab-text-lg);font-weight:600;margin-bottom:6px;">Section heading — 1.05rem / 600 <code>--sab-text-lg</code></div>
+            <div style="font-size:var(--sab-text-base);margin-bottom:6px;">Body and table cells — 0.92rem / 400 <code>--sab-text-base</code></div>
+            <div style="font-size:var(--sab-text-sm);color:var(--sab-text-muted);margin-bottom:6px;">Secondary line, help text — 0.82rem <code>--sab-text-sm</code></div>
+            <div style="font-size:var(--sab-text-xs);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;color:var(--sab-text-faint);">Table header / label — 0.72rem uppercase <code>--sab-text-xs</code></div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="icons">
+        <h2>Icons</h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                One inline SVG sprite (<code>Views/Shared/_Icons.cshtml</code>), no icon font, no CDN.
+                They inherit <code>currentColor</code> and are <code>aria-hidden</code>, because every
+                icon in this app sits beside a text label. Icon-only buttons put the label in
+                <code>aria-label</code> on the button.
+            </p>
+            <div class="sg-icons" id="sg-icon-grid"></div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="status">
+        <h2>Status pills</h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                A pill is the enum, spelled the way the enum spells it. The class is built in the view as
+                <code>status-@Value.ToString().ToLowerInvariant()</code>, so a new enum member needs a
+                new rule in site.css — otherwise it renders as an unstyled pill, which is the intended
+                fail-safe (readable, just plain).
+            </p>
+
+            <div class="sg-label">AssetStatus</div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="status-pill status-available">Available</span>
+                <span class="status-pill status-assigned">Assigned</span>
+                <span class="status-pill status-intransit">InTransit</span>
+                <span class="status-pill status-undermaintenance">UnderMaintenance</span>
+                <span class="status-pill status-reserved">Reserved</span>
+                <span class="status-pill status-lost">Lost</span>
+                <span class="status-pill status-damaged">Damaged</span>
+                <span class="status-pill status-disposed">Disposed</span>
+            </div>
+
+            <div class="sg-label">RequestStatus &amp; RequestType</div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="status-pill status-pending">Pending</span>
+                <span class="status-pill status-approved">Approved</span>
+                <span class="status-pill status-fulfilled">Fulfilled</span>
+                <span class="status-pill status-rejected">Rejected</span>
+                <span class="status-pill status-cancelled">Cancelled</span>
+                <span class="status-pill status-borrow">Borrow</span>
+                <span class="status-pill status-transfer">Transfer</span>
+            </div>
+
+            <div class="sg-label">ConditionStatus</div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="status-pill status-new">New</span>
+                <span class="status-pill status-excellent">Excellent</span>
+                <span class="status-pill status-good">Good</span>
+                <span class="status-pill status-fair">Fair</span>
+                <span class="status-pill status-poor">Poor</span>
+                <span class="status-pill status-damaged">Damaged</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="buttons">
+        <h2>Buttons</h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                One primary action per screen — the thing the page exists for. Everything else is
+                secondary or a link. Destructive actions are red <em>and</em> confirmed via
+                <code>data-confirm</code>; red alone has never stopped anyone.
+            </p>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-plus"></use></svg> Register asset</button>
+                <button class="btn btn-secondary">Apply</button>
+                <button class="btn btn-outline-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-download"></use></svg> Export CSV</button>
+                <button class="btn btn-danger"><svg class="sab-icon" aria-hidden="true"><use href="#i-archive"></use></svg> Dispose</button>
+                <button class="btn btn-primary btn-sm">Small</button>
+                <button class="btn btn-secondary" disabled>Disabled</button>
+                <a href="#buttons" class="btn btn-link">Cancel</a>
+            </div>
+            <div class="sg-label">Icon-only (needs aria-label)</div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" aria-label="Print report"><svg class="sab-icon" aria-hidden="true"><use href="#i-printer"></use></svg></button>
+                <button class="btn btn-outline-secondary btn-sm" aria-label="Edit asset"><svg class="sab-icon" aria-hidden="true"><use href="#i-edit"></use></svg></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="header">
+        <h2>Page header — <code>.sab-page-header</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">Title, one line of context, actions right. The subtitle answers "how many / whose / as of when", never repeats the title.</p>
+            <div class="sg-demo-bg">
+                <div class="sab-page-header" style="margin-bottom:0">
+                    <div class="sab-page-header-text">
+                        <h1 class="sab-page-title"><svg class="sab-icon sab-icon-lg" aria-hidden="true"><use href="#i-box"></use></svg> Assets</h1>
+                        <p class="sab-page-subtitle">248 registered units · 12 under maintenance</p>
+                    </div>
+                    <div class="sab-page-actions">
+                        <button class="btn btn-outline-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-download"></use></svg> Export CSV</button>
+                        <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-plus"></use></svg> Register asset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="stats">
+        <h2>Stat tiles — <code>.sab-stats</code> / <code>.sab-stat</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                On a list page each tile is a link that filters the list below it, and the active one
+                is marked with <code>.is-active</code> — replacing today's inline <code>border border-2</code>.
+                A tile that filters nothing should not be a link.
+            </p>
+            <div class="sg-demo-bg">
+                <div class="sab-stats" style="margin-bottom:0">
+                    <a href="#stats" class="sab-stat is-active">
+                        <span class="sab-stat-icon"><svg class="sab-icon" aria-hidden="true"><use href="#i-box"></use></svg></span>
+                        <span class="sab-stat-value">248</span>
+                        <span class="sab-stat-label">All assets</span>
+                    </a>
+                    <a href="#stats" class="sab-stat">
+                        <span class="sab-stat-icon"><svg class="sab-icon" aria-hidden="true"><use href="#i-check-circle"></use></svg></span>
+                        <span class="sab-stat-value">96</span>
+                        <span class="sab-stat-label">Available</span>
+                    </a>
+                    <a href="#stats" class="sab-stat">
+                        <span class="sab-stat-icon sab-stat-icon-blue"><svg class="sab-icon" aria-hidden="true"><use href="#i-user-check"></use></svg></span>
+                        <span class="sab-stat-value">131</span>
+                        <span class="sab-stat-label">Assigned</span>
+                    </a>
+                    <a href="#stats" class="sab-stat">
+                        <span class="sab-stat-icon sab-stat-icon-amber"><svg class="sab-icon" aria-hidden="true"><use href="#i-wrench"></use></svg></span>
+                        <span class="sab-stat-value">12</span>
+                        <span class="sab-stat-label">Under maintenance</span>
+                    </a>
+                    <div class="sab-stat">
+                        <span class="sab-stat-value">₱1,284,500</span>
+                        <span class="sab-stat-label">Value in service</span>
+                        <span class="sab-stat-note">excludes disposed units</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="filters">
+        <h2>Filter bar &amp; chips — <code>.sab-filters</code> / <code>.sab-chips</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                A plain GET form: the URL holds the filter state, so a filtered list is bookmarkable and
+                the back button behaves. Chips below show what is currently narrowing the result and
+                remove it in one click — without them, two rows out of 248 is a mystery.
+            </p>
+            <div class="sg-demo-bg">
+                <form class="sab-filters" data-auto-filter>
+                    <div class="sab-filter sab-filter-wide">
+                        <label class="sab-filter-label" for="sg-q">Search</label>
+                        <div class="sab-search-field">
+                            <svg class="sab-icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                            <input id="sg-q" class="form-control" type="text" placeholder="Name, code, serial…" value="projector" />
+                        </div>
+                    </div>
+                    <div class="sab-filter">
+                        <label class="sab-filter-label" for="sg-cat">Category</label>
+                        <select id="sg-cat" class="form-select"><option>All categories</option><option selected>AV Equipment</option></select>
+                    </div>
+                    <div class="sab-filter">
+                        <label class="sab-filter-label" for="sg-status">Status</label>
+                        <select id="sg-status" class="form-select"><option>All statuses</option><option selected>Assigned</option></select>
+                    </div>
+                    <div class="sab-filter-actions">
+                        <button class="btn btn-secondary" type="button">Apply</button>
+                        <a href="#filters" class="btn btn-outline-secondary">Reset</a>
+                    </div>
+                </form>
+
+                <div class="sab-chips">
+                    <span class="sab-chip-label">Filtered by</span>
+                    <a href="#filters" class="sab-chip">Search: projector <span class="sab-chip-x">×</span></a>
+                    <a href="#filters" class="sab-chip">Category: AV Equipment <span class="sab-chip-x">×</span></a>
+                    <a href="#filters" class="sab-chip">Status: Assigned <span class="sab-chip-x">×</span></a>
+                    <a href="#filters" class="small">Clear all</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="table">
+        <h2>Data table — <code>.sab-table-card</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                Count, rows and pager inside one card. Sortable headers are links
+                (<code>.sab-sort</code>), so sorting works without JS and a sorted view can be pasted
+                into an email. Rows carry <code>data-label</code> so they can restack as cards under 760px.
+            </p>
+            <div class="sg-demo-bg">
+                <div class="sab-section sab-table-card" style="margin-bottom:0">
+                    <div class="sab-section-head">
+                        <h2 class="sab-section-title">Showing 1–4 of 248</h2>
+                        <button class="btn btn-outline-secondary btn-sm" data-print><svg class="sab-icon" aria-hidden="true"><use href="#i-printer"></use></svg> Print</button>
+                    </div>
+                    <div class="sab-section-body-flush">
+                        <table class="table table-striped sab-table-stack">
+                            <thead>
+                                <tr>
+                                    <th><a class="sab-sort is-sorted" href="#table">Code <svg class="sab-icon sab-icon-sm sab-sort-arrow" aria-hidden="true"><use href="#i-chevron-down"></use></svg></a></th>
+                                    <th><a class="sab-sort" href="#table">Asset <svg class="sab-icon sab-icon-sm sab-sort-arrow" aria-hidden="true"><use href="#i-chevron-down"></use></svg></a></th>
+                                    <th>Condition</th>
+                                    <th>Status</th>
+                                    <th>Holder / Location</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="sab-row-link" data-href="#table" tabindex="0">
+                                    <td data-label="Code"><span class="sab-cell-code">PRJ-014</span></td>
+                                    <td data-label="Asset"><div class="sab-cell-primary">Epson EB-S41 Projector</div><div class="sab-cell-secondary">EB-S41 · SN X4K88213</div></td>
+                                    <td data-label="Condition"><span class="status-pill status-good">Good</span></td>
+                                    <td data-label="Status"><span class="status-pill status-assigned">Assigned</span></td>
+                                    <td data-label="Holder"><span class="sab-person"><span class="sab-avatar-sm">MR</span> Maria Reyes</span></td>
+                                    <td class="sab-cell-actions"><a href="#table">View</a></td>
+                                </tr>
+                                <tr class="sab-row-link" data-href="#table" tabindex="0">
+                                    <td data-label="Code"><span class="sab-cell-code">LPT-221</span></td>
+                                    <td data-label="Asset"><div class="sab-cell-primary">Lenovo ThinkPad E14</div><div class="sab-cell-secondary">E14 Gen 4 · SN PF3J1120</div></td>
+                                    <td data-label="Condition"><span class="status-pill status-excellent">Excellent</span></td>
+                                    <td data-label="Status"><span class="status-pill status-available">Available</span></td>
+                                    <td data-label="Location">IT Storeroom</td>
+                                    <td class="sab-cell-actions"><a href="#table">View</a></td>
+                                </tr>
+                                <tr class="sab-row-link" data-href="#table" tabindex="0">
+                                    <td data-label="Code"><span class="sab-cell-code">PRJ-009</span></td>
+                                    <td data-label="Asset"><div class="sab-cell-primary">BenQ MS550 Projector</div><div class="sab-cell-secondary">MS550 · SN B9920031</div></td>
+                                    <td data-label="Condition"><span class="status-pill status-fair">Fair</span></td>
+                                    <td data-label="Status"><span class="status-pill status-undermaintenance">UnderMaintenance</span></td>
+                                    <td data-label="Location">AV Room</td>
+                                    <td class="sab-cell-actions"><a href="#table">View</a></td>
+                                </tr>
+                                <tr class="sab-row-link" data-href="#table" tabindex="0">
+                                    <td data-label="Code"><span class="sab-cell-code">DSK-102</span></td>
+                                    <td data-label="Asset"><div class="sab-cell-primary">Teacher's Desk, oak</div><div class="sab-cell-secondary">Standard Desk · no serial</div></td>
+                                    <td data-label="Condition"><span class="status-pill status-poor">Poor</span></td>
+                                    <td data-label="Status"><span class="status-pill status-disposed">Disposed</span></td>
+                                    <td data-label="Location">—</td>
+                                    <td class="sab-cell-actions"><a href="#table">View</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="sab-section-foot">
+                        <span>Page 1 of 62</span>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-outline-secondary btn-sm disabled" href="#table"><svg class="sab-icon sab-icon-sm" aria-hidden="true"><use href="#i-chevron-left"></use></svg> Previous</a>
+                            <a class="btn btn-outline-secondary btn-sm" href="#table">Next <svg class="sab-icon sab-icon-sm" aria-hidden="true"><use href="#i-chevron-right"></use></svg></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="empty">
+        <h2>Empty states — <code>.sab-empty</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                Three different nothings, deliberately not alike. Today several views print
+                "No assets found." for all three, which sends a Teacher hunting for a Register button
+                they are not allowed to have.
+            </p>
+
+            <div class="sg-label">Nothing exists yet — offer the creating action</div>
+            <div class="sg-demo-bg mb-3">
+                <div class="sab-section" style="margin-bottom:0"><div class="sab-empty">
+                    <div class="sab-empty-icon"><svg class="sab-icon sab-icon-xl" aria-hidden="true"><use href="#i-box"></use></svg></div>
+                    <div class="sab-empty-title">No assets registered yet</div>
+                    <p class="sab-empty-text">Register the first unit and it will appear here with its code, condition and location.</p>
+                    <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-plus"></use></svg> Register asset</button>
+                </div></div>
+            </div>
+
+            <div class="sg-label">The filter hid them — offer to clear it, never to create</div>
+            <div class="sg-demo-bg mb-3">
+                <div class="sab-section" style="margin-bottom:0"><div class="sab-empty sab-empty-filtered">
+                    <div class="sab-empty-icon"><svg class="sab-icon sab-icon-xl" aria-hidden="true"><use href="#i-filter"></use></svg></div>
+                    <div class="sab-empty-title">No assets match these filters</div>
+                    <p class="sab-empty-text">248 assets are registered, but none is both <strong>Disposed</strong> and in <strong>AV Equipment</strong>.</p>
+                    <a class="btn btn-secondary" href="#empty">Clear filters</a>
+                </div></div>
+            </div>
+
+            <div class="sg-label">Not yours to see — say why, and where to go</div>
+            <div class="sg-demo-bg">
+                <div class="sab-section" style="margin-bottom:0"><div class="sab-empty sab-empty-denied">
+                    <div class="sab-empty-icon"><svg class="sab-icon sab-icon-xl" aria-hidden="true"><use href="#i-alert"></use></svg></div>
+                    <div class="sab-empty-title">Reports are for Asset Officers, Administrators and the Principal</div>
+                    <p class="sab-empty-text">Your account is a Teacher account. If you need a report for your department, ask the Asset Officer.</p>
+                    <a class="btn btn-secondary" href="#empty">Back to my requests</a>
+                </div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="detail">
+        <h2>Detail page — <code>.sab-detail</code>, <code>.sab-identity</code>, <code>.sab-dl</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                Identity at the top (image, name, the pills that decide what you may do), facts in a
+                definition grid, actions stacked in the right rail with a one-line reason under any
+                that is disabled.
+            </p>
+            <div class="sg-demo-bg">
+                <div class="sab-detail">
+                    <div>
+                        <div class="sab-section">
+                            <div class="sab-section-body">
+                                <div class="sab-identity mb-4">
+                                    <div class="sab-identity-media"><svg class="sab-icon sab-icon-xl" aria-hidden="true"><use href="#i-box"></use></svg></div>
+                                    <div class="sab-identity-meta">
+                                        <h3 class="sab-identity-name">Epson EB-S41 Projector</h3>
+                                        <p class="sab-identity-sub">PRJ-014 · AV Equipment · Main Campus</p>
+                                        <div class="sab-identity-pills">
+                                            <span class="status-pill status-assigned">Assigned</span>
+                                            <span class="status-pill status-good">Good</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <dl class="sab-dl">
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Serial number</span><p class="sab-dl-value">X4K88213</p></div>
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Model</span><p class="sab-dl-value">EB-S41</p></div>
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Held by</span><p class="sab-dl-value"><span class="sab-person"><span class="sab-avatar-sm">MR</span> Maria Reyes</span></p></div>
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Location</span><p class="sab-dl-value">Room 204</p></div>
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Acquired</span><p class="sab-dl-value">14 Jun 2024</p></div>
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Cost</span><p class="sab-dl-value">₱27,400.00</p></div>
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Warranty</span><p class="sab-dl-value sab-dl-value-empty">Not recorded</p></div>
+                                    <div class="sab-dl-item"><span class="sab-dl-term">Department</span><p class="sab-dl-value">Science</p></div>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="sab-section">
+                            <div class="sab-section-head"><h2 class="sab-section-title">Actions</h2></div>
+                            <div class="sab-section-body">
+                                <div class="sab-actions-stack">
+                                    <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-user-check"></use></svg> Return from Maria</button>
+                                    <button class="btn btn-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-transfer"></use></svg> Transfer</button>
+                                    <button class="btn btn-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-edit"></use></svg> Edit details</button>
+                                    <button class="btn btn-secondary" disabled><svg class="sab-icon" aria-hidden="true"><use href="#i-archive"></use></svg> Dispose</button>
+                                    <p class="sab-action-note">Return it first — an assigned unit cannot be disposed.</p>
+                                    <button class="btn btn-outline-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-qr"></use></svg> Print QR label</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="timeline">
+        <h2>Timeline — <code>.sab-timeline</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                One spine for assignments, movements and disposals, newest first. The dot colour is a
+                hint; the words carry the meaning, because colour alone is not a label.
+            </p>
+            <div class="sg-demo-bg">
+                <div class="sab-section" style="margin-bottom:0">
+                    <div class="sab-section-head"><h2 class="sab-section-title"><svg class="sab-icon" aria-hidden="true"><use href="#i-clock"></use></svg> History</h2></div>
+                    <div class="sab-section-body">
+                        <ol class="sab-timeline">
+                            <li class="sab-timeline-item">
+                                <span class="sab-timeline-dot sab-timeline-dot-blue"></span>
+                                <p class="sab-timeline-title">Assigned to Maria Reyes</p>
+                                <p class="sab-timeline-meta">Condition on assignment: Good · by J. Santos (Asset Officer)</p>
+                                <span class="sab-timeline-time">12 Sep 2026, 9:14 AM</span>
+                            </li>
+                            <li class="sab-timeline-item">
+                                <span class="sab-timeline-dot"></span>
+                                <p class="sab-timeline-title">Borrow request approved</p>
+                                <p class="sab-timeline-meta">Request #318 · fulfilled the same day</p>
+                                <span class="sab-timeline-time">12 Sep 2026, 9:12 AM</span>
+                            </li>
+                            <li class="sab-timeline-item">
+                                <span class="sab-timeline-dot sab-timeline-dot-amber"></span>
+                                <p class="sab-timeline-title">Moved to AV Room from IT Storeroom</p>
+                                <p class="sab-timeline-meta">Reason: lamp replacement · by J. Santos</p>
+                                <span class="sab-timeline-time">2 Aug 2026, 3:40 PM</span>
+                            </li>
+                            <li class="sab-timeline-item">
+                                <span class="sab-timeline-dot sab-timeline-dot-gray"></span>
+                                <p class="sab-timeline-title">Registered</p>
+                                <p class="sab-timeline-meta">Acquired 14 Jun 2024 · ₱27,400.00</p>
+                                <span class="sab-timeline-time">18 Jun 2024, 10:02 AM</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="forms">
+        <h2>Forms — <code>.sab-form</code>, <code>.sab-context</code></h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                One column, max 720px, grouped in fieldsets. Any form that acts on something opens with
+                a read-only <code>.sab-context</code> block naming what it is acting on — deciding a
+                request with the asset's details one page back is how the wrong unit gets issued.
+                Validation stays with jQuery unobtrusive, which is already wired up.
+            </p>
+            <div class="sg-demo-bg">
+                <form class="sab-form" onsubmit="return false">
+                    <div class="sab-context">
+                        <div class="sab-context-title">Request #318 · Borrow</div>
+                        <dl class="sab-dl">
+                            <div class="sab-dl-item"><span class="sab-dl-term">Requested by</span><p class="sab-dl-value">Maria Reyes · Science</p></div>
+                            <div class="sab-dl-item"><span class="sab-dl-term">Model</span><p class="sab-dl-value">Epson EB-S41</p></div>
+                            <div class="sab-dl-item"><span class="sab-dl-term">Reason</span><p class="sab-dl-value">Grade 9 science fair, 3 days</p></div>
+                        </dl>
+                    </div>
+
+                    <fieldset class="sab-fieldset">
+                        <legend class="sab-fieldset-legend">Issue a unit</legend>
+                        <div class="sab-field">
+                            <label class="form-label" for="sg-unit">Physical unit<span class="sab-required" aria-hidden="true">*</span></label>
+                            <select id="sg-unit" class="form-select">
+                                <option>PRJ-014 — Epson EB-S41 · Available · Good</option>
+                                <option>PRJ-021 — Epson EB-S41 · Available · Fair</option>
+                            </select>
+                            <div class="form-text">Only available units of the requested model are listed.</div>
+                        </div>
+                        <div class="sab-field-row">
+                            <div class="sab-field">
+                                <label class="form-label" for="sg-cond">Condition at hand-over<span class="sab-required" aria-hidden="true">*</span></label>
+                                <select id="sg-cond" class="form-select"><option>Good</option></select>
+                            </div>
+                            <div class="sab-field">
+                                <label class="form-label" for="sg-dept">Issue to department<span class="sab-required" aria-hidden="true">*</span></label>
+                                <select id="sg-dept" class="form-select"><option>Science</option></select>
+                            </div>
+                        </div>
+                        <div class="sab-field">
+                            <label class="form-label" for="sg-remarks">Remarks<span class="sab-optional">optional</span></label>
+                            <textarea id="sg-remarks" class="form-control" rows="2" placeholder="Anything the record should show later"></textarea>
+                        </div>
+                    </fieldset>
+
+                    <div class="sab-form-actions">
+                        <button class="btn btn-primary" type="submit">Approve &amp; issue</button>
+                        <a class="btn btn-link" href="#forms">Cancel</a>
+                        <button class="btn btn-outline-secondary sab-form-actions-spacer" type="button">Reject instead</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section class="sg-block" id="flash">
+        <h2>Flash messages &amp; bars</h2>
+        <div class="sg-body">
+            <p class="sg-note">
+                <code>TempData["StatusMessage"]</code> renders as a flash. The icon is what makes
+                success and failure distinguishable without relying on colour. Success auto-hides;
+                warnings and errors stay until dismissed.
+            </p>
+            <div class="sg-demo-bg">
+                <div class="sab-flash">
+                    <svg class="sab-icon" aria-hidden="true"><use href="#i-check-circle"></use></svg>
+                    <div class="sab-flash-body"><span class="sab-flash-title">PRJ-014 issued to Maria Reyes.</span> The request is now Fulfilled.</div>
+                </div>
+                <div class="sab-flash sab-flash-warn">
+                    <svg class="sab-icon" aria-hidden="true"><use href="#i-alert"></use></svg>
+                    <div class="sab-flash-body">This request was raised by another Asset Officer, so it is not yours to decide. An Administrator or the Principal can act on it.</div>
+                </div>
+                <div class="sab-flash sab-flash-error">
+                    <svg class="sab-icon" aria-hidden="true"><use href="#i-alert"></use></svg>
+                    <div class="sab-flash-body"><span class="sab-flash-title">Someone changed this asset while you were editing.</span> Reload to see their change, then re-apply yours.</div>
+                </div>
+
+                <div class="sab-section" style="margin-bottom:0">
+                    <div class="sab-section-head"><h2 class="sab-section-title">Assets by category</h2></div>
+                    <div class="sab-section-body">
+                        <div class="sab-bars">
+                            <div class="sab-bar-row"><span class="sab-bar-label">AV Equipment</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:100%"></div></div><span class="sab-bar-value">84</span></div>
+                            <div class="sab-bar-row"><span class="sab-bar-label">Computers</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:73%"></div></div><span class="sab-bar-value">61</span></div>
+                            <div class="sab-bar-row"><span class="sab-bar-label">Furniture</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:56%"></div></div><span class="sab-bar-value">47</span></div>
+                            <div class="sab-bar-row"><span class="sab-bar-label">Lab Apparatus</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:35%"></div></div><span class="sab-bar-value">29</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // Renders one cell per <symbol> in the sprite, so the grid can never go
+    // stale against _Icons.cshtml.
+    (function () {
+        var grid = document.getElementById('sg-icon-grid');
+        document.querySelectorAll('symbol[id^="i-"]').forEach(function (sym) {
+            var cell = document.createElement('div');
+            cell.className = 'sg-icon-cell';
+            cell.innerHTML = '<svg class="sab-icon sab-icon-lg" aria-hidden="true"><use href="#' + sym.id + '"></use></svg>' +
+                             '<span>' + sym.id + '</span>';
+            grid.appendChild(cell);
+        });
+    })();
+</script>
+</body>
+</html>

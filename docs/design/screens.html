@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Screen blueprints — School Inventory</title>
+<link rel="stylesheet" href="../../SchoolInventoryManagement.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="../../SchoolInventoryManagement.Web/wwwroot/css/site.css" />
+<link rel="stylesheet" href="../../SchoolInventoryManagement.Web/wwwroot/css/design-system.css" />
+<style>
+    /* Mockup chrome only — none of this ships. */
+    body { background: #eceeed; }
+    .mk-intro { max-width: 900px; margin: 0 auto; padding: 40px 24px 8px; }
+    .mk-intro h1 { font-size: 1.7rem; font-weight: 700; margin-bottom: 8px; }
+    .mk-intro p { color: var(--sab-text-muted); font-size: 0.92rem; max-width: 72ch; }
+    .mk-screen { max-width: 1180px; margin: 0 auto 44px; padding: 0 24px; }
+    .mk-caption { padding: 28px 0 10px; }
+    .mk-caption h2 { font-size: 1.05rem; font-weight: 700; margin: 0 0 4px; }
+    .mk-caption p { font-size: 0.86rem; color: var(--sab-text-muted); margin: 0; max-width: 75ch; }
+    .mk-caption .mk-route { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.74rem; color: var(--sab-green-dark); background: var(--sab-green-light); padding: 2px 8px; border-radius: 4px; }
+    /* The frame fakes a browser viewport so the app shell can render at its
+       real proportions inside this page. */
+    .mk-frame { border: 1px solid #cdd2cf; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(16,24,40,.10); background: var(--sab-bg); }
+    .mk-frame .sab-shell { min-height: 0; }
+    .mk-frame .sab-sidebar { height: auto; min-height: 560px; position: static; }
+    .mk-frame.mk-short .sab-sidebar { min-height: 440px; }
+    .mk-phone { max-width: 390px; margin: 0; }
+    .mk-phone .sab-sidebar { display: none; }
+</style>
+</head>
+<body>
+<!-- Copy of the sprite from Views/Shared/_Icons.cshtml (the source of truth).
+     Browsers block external SVG <use> over file://, so the mockups inline it. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" focusable="false">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-6h5v6"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 21 7.5v9L12 21l-9-4.5v-9L12 3Z"/><path d="M3 7.5 12 12l9-4.5"/><path d="M12 12v9"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M5 5h14l2 8v6H3v-6L5 5Z"/><path d="M3 13h5l1.5 3h5L16 13h5"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.4 2.6 2.6 5.2-5.4"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><rect x="7.5" y="12" width="3" height="5" rx="1"/><rect x="12.5" y="8" width="3" height="9" rx="1"/><rect x="17.5" y="10" width="3" height="7" rx="1"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 11.2V4.5a1 1 0 0 1 1-1h6.7a1 1 0 0 1 .7.3l8.3 8.3a1 1 0 0 1 0 1.4l-6.7 6.7a1 1 0 0 1-1.4 0L3.8 11.9a1 1 0 0 1-.3-.7Z"/><circle cx="7.6" cy="7.6" r="1.3"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/><path d="M16 5.2a3.4 3.4 0 0 1 0 6.6"/><path d="M18 15c2 .8 3.3 2.4 3.3 4.6"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h7A1.5 1.5 0 0 1 14 5.5V21"/><path d="M14 10h4.5A1.5 1.5 0 0 1 20 11.5V21"/><path d="M3 21h18"/><path d="M7.5 8h3M7.5 12h3M7.5 16h3M17 14.5h.8M17 17.5h.8"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-1.5 2.5h15L18 16Z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3.5v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 19.5h15"/></symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24"><path d="M7 9V3.5h10V9"/><path d="M7 18H4.5v-6A1.5 1.5 0 0 1 6 10.5h12a1.5 1.5 0 0 1 1.5 1.5v6H17"/><rect x="7" y="14.5" width="10" height="6" rx="1"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3.5 5.5h17L14 13v6l-4 2v-8L3.5 5.5Z"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M4.5 12h15"/><path d="m13.5 6 6 6-6 6"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9.5 6 6 6-6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10.2v3.6"/><circle cx="12" cy="16.9" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11.5v5"/><circle cx="12" cy="8.2" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h3v3h-3zM19 14h1.5M14 20.5h6.5M19.5 17.5v3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 6.5h15"/><path d="M9.5 6.5V4.8a1.3 1.3 0 0 1 1.3-1.3h2.4a1.3 1.3 0 0 1 1.3 1.3v1.7"/><path d="m6.5 6.5 1.1 13.2a1.3 1.3 0 0 0 1.3 1.2h6.2a1.3 1.3 0 0 0 1.3-1.2L17.5 6.5"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19.2 8.8a2.1 2.1 0 0 0-3-3L5 17v3Z"/><path d="m14.7 7.3 3 3"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9.5 21H5.5A1.5 1.5 0 0 1 4 19.5v-15A1.5 1.5 0 0 1 5.5 3h4"/><path d="m15 16.5 4.5-4.5L15 7.5"/><path d="M19.5 12h-11"/></symbol>
+    <symbol id="i-transfer" viewBox="0 0 24 24"><path d="M4 8.5h13"/><path d="M13.5 5 17 8.5 13.5 12"/><path d="M20 15.5H7"/><path d="M10.5 12 7 15.5 10.5 19"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="4.5" rx="1"/><path d="M5.5 9v10.5h13V9"/><path d="M9.8 13h4.4"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M15.5 3.5a5 5 0 0 0-4.6 7l-7 7 2.6 2.6 7-7a5 5 0 0 0 6.4-6.2l-3 3-2.8-2.8 3-3a5 5 0 0 0-1.6-.6Z"/></symbol>
+    <symbol id="i-user-check" viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.6"/><path d="M3.5 20.5c0-3.5 2.9-5.7 6.5-5.7 1 0 2 .2 2.8.5"/><path d="m15 17.8 2.2 2.2 4-4.2"/></symbol>
+</svg>
+
+
+<div class="mk-intro">
+    <h1>Screen blueprints</h1>
+    <p>
+        Six screens assembled out of the components in
+        <a href="styleguide.html">styleguide.html</a>, using the app's real CSS. These are the target
+        for the existing Razor views — the markup is ordinary Bootstrap plus <code>.sab-</code>
+        classes, so each one is a rewrite of a <code>.cshtml</code> file and nothing else.
+        The reasoning behind each decision is in <a href="../frontend-design.md">frontend-design.md</a>.
+    </p>
+</div>
+
+<!-- Sidebar is cloned into each screen by the script at the bottom, so the
+     navigation stays identical across blueprints the way it is in _Layout. -->
+<template id="tpl-sidebar">
+<aside class="sab-sidebar">
+    <a class="sab-brand" href="#">
+        <span class="sab-brand-mark">SAB</span>
+        <span class="sab-brand-text">
+            <span class="sab-brand-name d-block">School Inventory</span>
+            <span class="sab-brand-sub">Inventory</span>
+        </span>
+    </a>
+    <ul class="sab-nav">
+        <li class="sab-nav-item"><a class="sab-nav-link" data-nav="home" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-home"></use></svg> Home</span></a></li>
+        <li class="sab-nav-item"><a class="sab-nav-link" data-nav="assets" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-box"></use></svg> Assets</span></a></li>
+        <li class="sab-nav-item"><a class="sab-nav-link" data-nav="myrequests" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-inbox"></use></svg> My Requests</span></a></li>
+        <li class="sab-nav-heading" data-role="approver">Approvals</li>
+        <li class="sab-nav-item" data-role="approver"><a class="sab-nav-link" data-nav="approvals" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-check-circle"></use></svg> Approvals</span><span class="sab-nav-badge">4</span></a></li>
+        <li class="sab-nav-item" data-role="approver"><a class="sab-nav-link" data-nav="reports" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-chart"></use></svg> Reports</span></a></li>
+        <li class="sab-nav-heading" data-role="assetmanager">Catalog</li>
+        <li class="sab-nav-item" data-role="assetmanager"><a class="sab-nav-link" data-nav="categories" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-tag"></use></svg> Categories</span></a></li>
+        <li class="sab-nav-item" data-role="assetmanager"><a class="sab-nav-link" data-nav="models" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-layers"></use></svg> Models</span></a></li>
+        <li class="sab-nav-item" data-role="assetmanager"><a class="sab-nav-link" data-nav="locations" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-pin"></use></svg> Locations</span></a></li>
+        <li class="sab-nav-heading" data-role="usermanager">Organization</li>
+        <li class="sab-nav-item" data-role="usermanager"><a class="sab-nav-link" data-nav="users" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-users"></use></svg> Users</span></a></li>
+        <li class="sab-nav-item" data-role="usermanager"><a class="sab-nav-link" data-nav="branches" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-building"></use></svg> Branches</span></a></li>
+        <li class="sab-nav-item" data-role="usermanager"><a class="sab-nav-link" data-nav="departments" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-grid"></use></svg> Departments</span></a></li>
+        <li class="sab-nav-heading">&nbsp;</li>
+        <li class="sab-nav-item"><a class="sab-nav-link" data-nav="notifications" href="#"><span class="sab-nav-label"><svg class="sab-icon" aria-hidden="true"><use href="#i-bell"></use></svg> Notifications</span><span class="sab-nav-badge">2</span></a></li>
+    </ul>
+    <a class="sab-sidebar-cta" href="#"><svg class="sab-icon" aria-hidden="true"><use href="#i-plus"></use></svg> New Request</a>
+</aside>
+</template>
+
+<template id="tpl-topbar">
+<header class="sab-topbar">
+    <button class="sab-sidebar-toggle" data-sab-drawer-toggle aria-label="Open navigation" aria-expanded="false">
+        <svg class="sab-icon" aria-hidden="true"><use href="#i-menu"></use></svg>
+    </button>
+    <span class="sab-topbar-title">School Inventory Management</span>
+    <div class="sab-search sab-search-wrap">
+        <span class="sab-search-icon"><svg class="sab-icon sab-icon-sm" aria-hidden="true"><use href="#i-search"></use></svg></span>
+        <input type="text" placeholder="Search assets, codes, serials…" />
+    </div>
+    <div class="sab-topbar-right">
+        <span class="sab-bell"><svg class="sab-icon sab-icon-lg" aria-hidden="true"><use href="#i-bell"></use></svg><span class="sab-bell-dot"></span></span>
+        <div class="sab-user">
+            <span class="sab-user-text d-none d-sm-block">
+                <span class="sab-user-name d-block" data-user-name>Jose Santos</span>
+                <span class="sab-user-role" data-user-role>Asset Officer</span>
+            </span>
+            <span class="sab-avatar" data-user-initials>JS</span>
+        </div>
+    </div>
+</header>
+</template>
+
+<!-- ==================== 1. Dashboard ==================== -->
+<div class="mk-screen">
+    <div class="mk-caption">
+        <h2>1 · Dashboard — Asset Officer <span class="mk-route">Home/Index</span></h2>
+        <p>
+            Opens on what needs a decision, not on what exists. Tiles are the inventory at a glance;
+            the attention list is the actual to-do, with a verb on every row. Today this screen has
+            the tiles and the list but no way to act from it — every row here ends in a button.
+        </p>
+    </div>
+    <div class="mk-frame">
+        <div class="sab-shell" data-screen data-nav-active="home" data-roles="approver assetmanager">
+            <div class="sab-main">
+                <main class="sab-content">
+
+                    <div class="sab-flash" data-auto-dismiss>
+                        <svg class="sab-icon" aria-hidden="true"><use href="#i-check-circle"></use></svg>
+                        <div class="sab-flash-body"><span class="sab-flash-title">PRJ-014 issued to Maria Reyes.</span> Request #318 is now Fulfilled.</div>
+                    </div>
+
+                    <div class="sab-page-header">
+                        <div class="sab-page-header-text">
+                            <h1 class="sab-page-title">Good morning, Jose</h1>
+                            <p class="sab-page-subtitle">Wednesday, 16 September 2026</p>
+                        </div>
+                        <div class="sab-page-actions">
+                            <button class="btn btn-outline-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-chart"></use></svg> Reports</button>
+                            <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-plus"></use></svg> Register asset</button>
+                        </div>
+                    </div>
+
+                    <div class="sab-stats">
+                        <a href="#" class="sab-stat">
+                            <span class="sab-stat-icon"><svg class="sab-icon" aria-hidden="true"><use href="#i-box"></use></svg></span>
+                            <span class="sab-stat-value">248</span><span class="sab-stat-label">Registered assets</span>
+                        </a>
+                        <a href="#" class="sab-stat">
+                            <span class="sab-stat-icon sab-stat-icon-blue"><svg class="sab-icon" aria-hidden="true"><use href="#i-user-check"></use></svg></span>
+                            <span class="sab-stat-value">131</span><span class="sab-stat-label">Currently issued</span>
+                        </a>
+                        <a href="#" class="sab-stat">
+                            <span class="sab-stat-icon sab-stat-icon-amber"><svg class="sab-icon" aria-hidden="true"><use href="#i-wrench"></use></svg></span>
+                            <span class="sab-stat-value">12</span><span class="sab-stat-label">Under maintenance</span>
+                        </a>
+                        <div class="sab-stat">
+                            <span class="sab-stat-icon sab-stat-icon-gray"><svg class="sab-icon" aria-hidden="true"><use href="#i-chart"></use></svg></span>
+                            <span class="sab-stat-value">₱1.28M</span><span class="sab-stat-label">Value in service</span>
+                            <span class="sab-stat-note">excludes disposed units</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-8">
+                            <div class="sab-section">
+                                <div class="sab-section-head">
+                                    <h2 class="sab-section-title">Needs your attention</h2>
+                                    <a href="#" class="small">View all</a>
+                                </div>
+                                <div class="sab-section-body-flush">
+                                    <table class="table sab-table-stack mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td data-label="Item">
+                                                    <div class="sab-cell-primary">4 requests awaiting your decision</div>
+                                                    <div class="sab-cell-secondary">Oldest: Maria Reyes, 2 days ago</div>
+                                                </td>
+                                                <td class="sab-cell-actions"><a class="btn btn-sm btn-primary" href="#">Review</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td data-label="Item">
+                                                    <div class="sab-cell-primary">6 assets out 90+ days</div>
+                                                    <div class="sab-cell-secondary">Longest: LPT-118 with R. Cruz since 3 Mar</div>
+                                                </td>
+                                                <td class="sab-cell-actions"><a class="btn btn-sm btn-outline-secondary" href="#">See list</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td data-label="Item">
+                                                    <div class="sab-cell-primary">3 units in maintenance over 30 days</div>
+                                                    <div class="sab-cell-secondary">PRJ-009 since 14 Aug</div>
+                                                </td>
+                                                <td class="sab-cell-actions"><a class="btn btn-sm btn-outline-secondary" href="#">See list</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td data-label="Item">
+                                                    <div class="sab-cell-primary">9 assets missing a serial number</div>
+                                                    <div class="sab-cell-secondary">Blocks warranty claims and audit matching</div>
+                                                </td>
+                                                <td class="sab-cell-actions"><a class="btn btn-sm btn-outline-secondary" href="#">Fix</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="sab-section">
+                                <div class="sab-section-head"><h2 class="sab-section-title">Assets by category</h2></div>
+                                <div class="sab-section-body">
+                                    <div class="sab-bars">
+                                        <div class="sab-bar-row"><span class="sab-bar-label">AV Equipment</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:100%"></div></div><span class="sab-bar-value">84</span></div>
+                                        <div class="sab-bar-row"><span class="sab-bar-label">Computers</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:73%"></div></div><span class="sab-bar-value">61</span></div>
+                                        <div class="sab-bar-row"><span class="sab-bar-label">Furniture</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:56%"></div></div><span class="sab-bar-value">47</span></div>
+                                        <div class="sab-bar-row"><span class="sab-bar-label">Lab Apparatus</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:35%"></div></div><span class="sab-bar-value">29</span></div>
+                                        <div class="sab-bar-row"><span class="sab-bar-label">Sports</span><div class="sab-bar-track"><div class="sab-bar-fill" style="width:32%"></div></div><span class="sab-bar-value">27</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="sab-section">
+                                <div class="sab-section-head"><h2 class="sab-section-title">Recent activity</h2></div>
+                                <div class="sab-section-body">
+                                    <div class="sab-activity">
+                                        <div class="sab-activity-item">
+                                            <span class="sab-avatar-sm">JS</span>
+                                            <div class="sab-activity-text"><strong>Jose Santos</strong> assigned <span class="sab-cell-code">PRJ-014</span><div class="sab-activity-time">Today, 9:14 AM</div></div>
+                                        </div>
+                                        <div class="sab-activity-item">
+                                            <span class="sab-avatar-sm">MR</span>
+                                            <div class="sab-activity-text"><strong>Maria Reyes</strong> requested a projector<div class="sab-activity-time">Today, 8:52 AM</div></div>
+                                        </div>
+                                        <div class="sab-activity-item">
+                                            <span class="sab-avatar-sm">AD</span>
+                                            <div class="sab-activity-text"><strong>Ana Dizon</strong> returned <span class="sab-cell-code">LPT-204</span> — condition Fair<div class="sab-activity-time">Yesterday, 4:20 PM</div></div>
+                                        </div>
+                                        <div class="sab-activity-item">
+                                            <span class="sab-avatar-sm">JS</span>
+                                            <div class="sab-activity-text"><strong>Jose Santos</strong> disposed <span class="sab-cell-code">DSK-102</span><div class="sab-activity-time">Yesterday, 11:05 AM</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="sab-section-foot"><span>Last 24 hours</span><a href="#" class="small">Audit trail</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 2. Assets list ==================== -->
+<div class="mk-screen">
+    <div class="mk-caption">
+        <h2>2 · Asset register <span class="mk-route">Assets/Index</span></h2>
+        <p>
+            Tiles filter the list beneath them and the active one says so. Applied filters become
+            removable chips, so "2 of 248" is never a mystery. Count, rows and pager live in one card
+            instead of three loose blocks.
+        </p>
+    </div>
+    <div class="mk-frame">
+        <div class="sab-shell" data-screen data-nav-active="assets" data-roles="approver assetmanager">
+            <div class="sab-main">
+                <main class="sab-content">
+                    <div class="sab-page-header">
+                        <div class="sab-page-header-text">
+                            <h1 class="sab-page-title">Assets</h1>
+                            <p class="sab-page-subtitle">248 registered units across 3 branches</p>
+                        </div>
+                        <div class="sab-page-actions">
+                            <button class="btn btn-outline-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-download"></use></svg> Export CSV</button>
+                            <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-plus"></use></svg> Register asset</button>
+                        </div>
+                    </div>
+
+                    <div class="sab-stats">
+                        <a href="#" class="sab-stat"><span class="sab-stat-value">248</span><span class="sab-stat-label">All assets</span></a>
+                        <a href="#" class="sab-stat"><span class="sab-stat-value">96</span><span class="sab-stat-label">Available</span></a>
+                        <a href="#" class="sab-stat is-active"><span class="sab-stat-value">131</span><span class="sab-stat-label">Assigned</span></a>
+                        <a href="#" class="sab-stat"><span class="sab-stat-value">12</span><span class="sab-stat-label">Under maintenance</span></a>
+                        <a href="#" class="sab-stat"><span class="sab-stat-value">9</span><span class="sab-stat-label">Disposed</span></a>
+                    </div>
+
+                    <form class="sab-filters" data-auto-filter>
+                        <div class="sab-filter sab-filter-wide">
+                            <label class="sab-filter-label" for="mk-q">Search</label>
+                            <div class="sab-search-field">
+                                <svg class="sab-icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                                <input id="mk-q" class="form-control" type="text" value="projector" />
+                            </div>
+                        </div>
+                        <div class="sab-filter"><label class="sab-filter-label" for="mk-c">Category</label><select id="mk-c" class="form-select"><option selected>AV Equipment</option></select></div>
+                        <div class="sab-filter"><label class="sab-filter-label" for="mk-d">Department</label><select id="mk-d" class="form-select"><option>All departments</option></select></div>
+                        <div class="sab-filter"><label class="sab-filter-label" for="mk-s">Condition</label><select id="mk-s" class="form-select"><option>All conditions</option></select></div>
+                        <div class="sab-filter-actions">
+                            <button class="btn btn-secondary" type="button">Apply</button>
+                            <a href="#" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </form>
+
+                    <div class="sab-chips">
+                        <span class="sab-chip-label">Filtered by</span>
+                        <a href="#" class="sab-chip">Search: projector <span class="sab-chip-x">×</span></a>
+                        <a href="#" class="sab-chip">Category: AV Equipment <span class="sab-chip-x">×</span></a>
+                        <a href="#" class="sab-chip">Status: Assigned <span class="sab-chip-x">×</span></a>
+                        <a href="#" class="small">Clear all</a>
+                    </div>
+
+                    <div class="sab-section sab-table-card">
+                        <div class="sab-section-head">
+                            <h2 class="sab-section-title">Showing 1–3 of 3</h2>
+                            <button class="btn btn-outline-secondary btn-sm" data-print><svg class="sab-icon" aria-hidden="true"><use href="#i-printer"></use></svg> Print</button>
+                        </div>
+                        <div class="sab-section-body-flush">
+                            <table class="table table-striped sab-table-stack mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><a class="sab-sort is-sorted" href="#">Code <svg class="sab-icon sab-icon-sm sab-sort-arrow" aria-hidden="true"><use href="#i-chevron-down"></use></svg></a></th>
+                                        <th><a class="sab-sort" href="#">Asset <svg class="sab-icon sab-icon-sm sab-sort-arrow" aria-hidden="true"><use href="#i-chevron-down"></use></svg></a></th>
+                                        <th>Condition</th>
+                                        <th>Status</th>
+                                        <th>Holder / Location</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="sab-row-link" data-href="#" tabindex="0">
+                                        <td data-label="Code"><span class="sab-cell-code">PRJ-014</span></td>
+                                        <td data-label="Asset"><div class="sab-cell-primary">Epson EB-S41 Projector</div><div class="sab-cell-secondary">EB-S41 · SN X4K88213</div></td>
+                                        <td data-label="Condition"><span class="status-pill status-good">Good</span></td>
+                                        <td data-label="Status"><span class="status-pill status-assigned">Assigned</span></td>
+                                        <td data-label="Holder"><span class="sab-person"><span class="sab-avatar-sm">MR</span> Maria Reyes</span></td>
+                                        <td class="sab-cell-actions"><a href="#">View</a></td>
+                                    </tr>
+                                    <tr class="sab-row-link" data-href="#" tabindex="0">
+                                        <td data-label="Code"><span class="sab-cell-code">PRJ-021</span></td>
+                                        <td data-label="Asset"><div class="sab-cell-primary">Epson EB-S41 Projector</div><div class="sab-cell-secondary">EB-S41 · SN X4K90117</div></td>
+                                        <td data-label="Condition"><span class="status-pill status-fair">Fair</span></td>
+                                        <td data-label="Status"><span class="status-pill status-assigned">Assigned</span></td>
+                                        <td data-label="Holder"><span class="sab-person"><span class="sab-avatar-sm">RC</span> Rico Cruz</span></td>
+                                        <td class="sab-cell-actions"><a href="#">View</a></td>
+                                    </tr>
+                                    <tr class="sab-row-link" data-href="#" tabindex="0">
+                                        <td data-label="Code"><span class="sab-cell-code">PRJ-033</span></td>
+                                        <td data-label="Asset"><div class="sab-cell-primary">BenQ MW550 Projector</div><div class="sab-cell-secondary">MW550 · SN B7710984</div></td>
+                                        <td data-label="Condition"><span class="status-pill status-excellent">Excellent</span></td>
+                                        <td data-label="Status"><span class="status-pill status-assigned">Assigned</span></td>
+                                        <td data-label="Holder"><span class="sab-person"><span class="sab-avatar-sm">AD</span> Ana Dizon</span></td>
+                                        <td class="sab-cell-actions"><a href="#">View</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="sab-section-foot">
+                            <span>Page 1 of 1</span>
+                            <div class="d-flex gap-2">
+                                <a class="btn btn-outline-secondary btn-sm disabled" href="#"><svg class="sab-icon sab-icon-sm" aria-hidden="true"><use href="#i-chevron-left"></use></svg> Previous</a>
+                                <a class="btn btn-outline-secondary btn-sm disabled" href="#">Next <svg class="sab-icon sab-icon-sm" aria-hidden="true"><use href="#i-chevron-right"></use></svg></a>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 3. Asset detail ==================== -->
+<div class="mk-screen">
+    <div class="mk-caption">
+        <h2>3 · Asset detail <span class="mk-route">Assets/Details</span></h2>
+        <p>
+            The whole life of one unit on one page: identity, facts, history, and every action it can
+            take right now. A disabled action says why it is disabled instead of disappearing — the
+            BLL already enforces these rules, and the UI should teach them rather than hide them.
+        </p>
+    </div>
+    <div class="mk-frame">
+        <div class="sab-shell" data-screen data-nav-active="assets" data-roles="approver assetmanager">
+            <div class="sab-main">
+                <main class="sab-content">
+                    <ul class="sab-crumbs">
+                        <li><a href="#">Assets</a></li>
+                        <li>PRJ-014</li>
+                    </ul>
+
+                    <div class="sab-page-header">
+                        <div class="sab-page-header-text">
+                            <h1 class="sab-page-title">Epson EB-S41 Projector</h1>
+                            <p class="sab-page-subtitle">PRJ-014 · registered 18 Jun 2024 · Main Campus / Science</p>
+                        </div>
+                        <div class="sab-page-actions">
+                            <button class="btn btn-outline-secondary" aria-label="Print QR label"><svg class="sab-icon" aria-hidden="true"><use href="#i-qr"></use></svg> QR label</button>
+                            <button class="btn btn-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-edit"></use></svg> Edit</button>
+                        </div>
+                    </div>
+
+                    <div class="sab-detail">
+                        <div>
+                            <div class="sab-section">
+                                <div class="sab-section-body">
+                                    <div class="sab-identity mb-4">
+                                        <div class="sab-identity-media"><svg class="sab-icon sab-icon-xl" aria-hidden="true"><use href="#i-box"></use></svg></div>
+                                        <div class="sab-identity-meta">
+                                            <h3 class="sab-identity-name">Epson EB-S41 Projector</h3>
+                                            <p class="sab-identity-sub">AV Equipment · issued to Maria Reyes since 12 Sep 2026</p>
+                                            <div class="sab-identity-pills">
+                                                <span class="status-pill status-assigned">Assigned</span>
+                                                <span class="status-pill status-good">Good</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <dl class="sab-dl">
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Asset code</span><p class="sab-dl-value sab-cell-code">PRJ-014</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Serial number</span><p class="sab-dl-value">X4K88213</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Model</span><p class="sab-dl-value">EB-S41</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Category</span><p class="sab-dl-value">AV Equipment</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Held by</span><p class="sab-dl-value"><span class="sab-person"><span class="sab-avatar-sm">MR</span> Maria Reyes</span></p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Location</span><p class="sab-dl-value">Room 204</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Acquired</span><p class="sab-dl-value">14 Jun 2024</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Cost</span><p class="sab-dl-value">₱27,400.00</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Warranty</span><p class="sab-dl-value sab-dl-value-empty">Not recorded</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Description</span><p class="sab-dl-value">Ceiling-mount bracket included.</p></div>
+                                    </dl>
+                                </div>
+                            </div>
+
+                            <div class="sab-section">
+                                <div class="sab-section-head">
+                                    <h2 class="sab-section-title"><svg class="sab-icon" aria-hidden="true"><use href="#i-clock"></use></svg> History</h2>
+                                    <a href="#" class="small">Full audit trail</a>
+                                </div>
+                                <div class="sab-section-body">
+                                    <ol class="sab-timeline">
+                                        <li class="sab-timeline-item">
+                                            <span class="sab-timeline-dot sab-timeline-dot-blue"></span>
+                                            <p class="sab-timeline-title">Assigned to Maria Reyes</p>
+                                            <p class="sab-timeline-meta">Condition on assignment: Good · by J. Santos</p>
+                                            <span class="sab-timeline-time">12 Sep 2026, 9:14 AM</span>
+                                        </li>
+                                        <li class="sab-timeline-item">
+                                            <span class="sab-timeline-dot"></span>
+                                            <p class="sab-timeline-title">Borrow request #318 approved</p>
+                                            <p class="sab-timeline-meta">Requested by M. Reyes for the Grade 9 science fair</p>
+                                            <span class="sab-timeline-time">12 Sep 2026, 9:12 AM</span>
+                                        </li>
+                                        <li class="sab-timeline-item">
+                                            <span class="sab-timeline-dot sab-timeline-dot-blue"></span>
+                                            <p class="sab-timeline-title">Returned by Rico Cruz</p>
+                                            <p class="sab-timeline-meta">Condition on return: Good</p>
+                                            <span class="sab-timeline-time">5 Sep 2026, 2:05 PM</span>
+                                        </li>
+                                        <li class="sab-timeline-item">
+                                            <span class="sab-timeline-dot sab-timeline-dot-amber"></span>
+                                            <p class="sab-timeline-title">Moved to AV Room from IT Storeroom</p>
+                                            <p class="sab-timeline-meta">Reason: lamp replacement</p>
+                                            <span class="sab-timeline-time">2 Aug 2026, 3:40 PM</span>
+                                        </li>
+                                        <li class="sab-timeline-item">
+                                            <span class="sab-timeline-dot sab-timeline-dot-gray"></span>
+                                            <p class="sab-timeline-title">Registered</p>
+                                            <p class="sab-timeline-meta">₱27,400.00 · acquired 14 Jun 2024</p>
+                                            <span class="sab-timeline-time">18 Jun 2024, 10:02 AM</span>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="sab-section">
+                                <div class="sab-section-head"><h2 class="sab-section-title">Actions</h2></div>
+                                <div class="sab-section-body">
+                                    <div class="sab-actions-stack">
+                                        <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-user-check"></use></svg> Return from Maria</button>
+                                        <button class="btn btn-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-transfer"></use></svg> Transfer to another location</button>
+                                        <button class="btn btn-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-wrench"></use></svg> Send for maintenance</button>
+                                        <button class="btn btn-danger" disabled><svg class="sab-icon" aria-hidden="true"><use href="#i-archive"></use></svg> Dispose</button>
+                                        <p class="sab-action-note">Return it from Maria first — an assigned unit cannot be disposed.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sab-section">
+                                <div class="sab-section-head"><h2 class="sab-section-title">At a glance</h2></div>
+                                <div class="sab-section-body">
+                                    <dl class="sab-dl" style="grid-template-columns:1fr">
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Times issued</span><p class="sab-dl-value">7</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Days out this year</span><p class="sab-dl-value">96</p></div>
+                                        <div class="sab-dl-item"><span class="sab-dl-term">Last returned condition</span><p class="sab-dl-value"><span class="status-pill status-good">Good</span></p></div>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 4. Approvals ==================== -->
+<div class="mk-screen">
+    <div class="mk-caption">
+        <h2>4 · Approvals queue <span class="mk-route">AssetRequests/Pending</span></h2>
+        <p>
+            A work queue, ordered oldest first, with the decision reachable from the row. Requests the
+            signed-in officer may not decide (raised by someone holding the same role — the rule the
+            BLL enforces) stay visible but explain themselves instead of throwing a 403 after the click.
+        </p>
+    </div>
+    <div class="mk-frame mk-short">
+        <div class="sab-shell" data-screen data-nav-active="approvals" data-roles="approver assetmanager">
+            <div class="sab-main">
+                <main class="sab-content">
+                    <div class="sab-page-header">
+                        <div class="sab-page-header-text">
+                            <h1 class="sab-page-title">Approvals</h1>
+                            <p class="sab-page-subtitle">4 requests waiting · oldest 2 days</p>
+                        </div>
+                        <div class="sab-page-actions">
+                            <button class="btn btn-outline-secondary"><svg class="sab-icon" aria-hidden="true"><use href="#i-download"></use></svg> Export CSV</button>
+                        </div>
+                    </div>
+
+                    <div class="sab-section sab-table-card">
+                        <div class="sab-section-body-flush">
+                            <table class="table sab-table-stack mb-0">
+                                <thead>
+                                    <tr><th>Requested</th><th>Type</th><th>What</th><th>Requester</th><th>Waiting</th><th></th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-label="Requested"><span class="sab-cell-code">#318</span></td>
+                                        <td data-label="Type"><span class="status-pill status-borrow">Borrow</span></td>
+                                        <td data-label="What"><div class="sab-cell-primary">Epson EB-S41</div><div class="sab-cell-secondary">Grade 9 science fair, 3 days</div></td>
+                                        <td data-label="Requester"><span class="sab-person"><span class="sab-avatar-sm">MR</span> Maria Reyes</span><div class="sab-cell-secondary">Science</div></td>
+                                        <td data-label="Waiting"><span class="status-pill status-pending">2 days</span></td>
+                                        <td class="sab-cell-actions"><a class="btn btn-sm btn-primary" href="#">Review</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="Requested"><span class="sab-cell-code">#321</span></td>
+                                        <td data-label="Type"><span class="status-pill status-transfer">Transfer</span></td>
+                                        <td data-label="What"><div class="sab-cell-primary">LPT-118 → Library</div><div class="sab-cell-secondary">Moving the reading-room station</div></td>
+                                        <td data-label="Requester"><span class="sab-person"><span class="sab-avatar-sm">AD</span> Ana Dizon</span><div class="sab-cell-secondary">Library</div></td>
+                                        <td data-label="Waiting"><span class="status-pill status-pending">1 day</span></td>
+                                        <td class="sab-cell-actions"><a class="btn btn-sm btn-primary" href="#">Review</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="Requested"><span class="sab-cell-code">#322</span></td>
+                                        <td data-label="Type"><span class="status-pill status-borrow">Borrow</span></td>
+                                        <td data-label="What"><div class="sab-cell-primary">Lenovo ThinkPad E14</div><div class="sab-cell-secondary">Enrolment week encoding</div></td>
+                                        <td data-label="Requester"><span class="sab-person"><span class="sab-avatar-sm">JS</span> Julio Sy</span><div class="sab-cell-secondary">Asset Officer · Registrar</div></td>
+                                        <td data-label="Waiting"><span class="status-pill status-pending">4 hours</span></td>
+                                        <td class="sab-cell-actions">
+                                            <span class="text-muted small">Not yours to decide</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="sab-section-foot">
+                            <span><svg class="sab-icon sab-icon-sm" aria-hidden="true"><use href="#i-info"></use></svg> Request #322 was raised by another Asset Officer — an Administrator or the Principal decides it.</span>
+                        </div>
+                    </div>
+
+                    <div class="mk-caption"><h2>Reviewing one — the approve form</h2><p>Everything needed for the decision is on the page: who asked, for what, why, and which physical unit is about to leave the store.</p></div>
+
+                    <form class="sab-form" onsubmit="return false">
+                        <div class="sab-context">
+                            <div class="sab-context-title">Request #318 · <span class="status-pill status-borrow">Borrow</span></div>
+                            <dl class="sab-dl">
+                                <div class="sab-dl-item"><span class="sab-dl-term">Requested by</span><p class="sab-dl-value"><span class="sab-person"><span class="sab-avatar-sm">MR</span> Maria Reyes</span></p></div>
+                                <div class="sab-dl-item"><span class="sab-dl-term">Department</span><p class="sab-dl-value">Science · Main Campus</p></div>
+                                <div class="sab-dl-item"><span class="sab-dl-term">Model requested</span><p class="sab-dl-value">Epson EB-S41</p></div>
+                                <div class="sab-dl-item"><span class="sab-dl-term">Raised</span><p class="sab-dl-value">14 Sep 2026, 8:52 AM</p></div>
+                                <div class="sab-dl-item"><span class="sab-dl-term">Reason</span><p class="sab-dl-value">Grade 9 science fair, needed for 3 days</p></div>
+                            </dl>
+                        </div>
+
+                        <fieldset class="sab-fieldset">
+                            <legend class="sab-fieldset-legend">Issue a unit</legend>
+                            <div class="sab-field">
+                                <label class="form-label" for="mk-unit">Physical unit<span class="sab-required" aria-hidden="true">*</span></label>
+                                <select id="mk-unit" class="form-select">
+                                    <option>PRJ-014 — Available · Good · IT Storeroom</option>
+                                    <option>PRJ-021 — Available · Fair · AV Room</option>
+                                </select>
+                                <div class="form-text">Only available units of the requested model appear here.</div>
+                            </div>
+                            <div class="sab-field-row">
+                                <div class="sab-field">
+                                    <label class="form-label" for="mk-cond">Condition at hand-over<span class="sab-required" aria-hidden="true">*</span></label>
+                                    <select id="mk-cond" class="form-select"><option>Good</option><option>Excellent</option><option>Fair</option></select>
+                                </div>
+                                <div class="sab-field">
+                                    <label class="form-label" for="mk-dept2">Issue to department<span class="sab-required" aria-hidden="true">*</span></label>
+                                    <select id="mk-dept2" class="form-select"><option>Science</option></select>
+                                </div>
+                            </div>
+                            <div class="sab-field">
+                                <label class="form-label" for="mk-rem">Remarks<span class="sab-optional">optional</span></label>
+                                <textarea id="mk-rem" class="form-control" rows="2" placeholder="Anything the record should show later"></textarea>
+                            </div>
+                        </fieldset>
+
+                        <div class="sab-form-actions">
+                            <button class="btn btn-primary" type="submit">Approve &amp; issue</button>
+                            <a class="btn btn-link" href="#">Cancel</a>
+                            <button class="btn btn-outline-secondary sab-form-actions-spacer" type="button">Reject with a reason</button>
+                        </div>
+                    </form>
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 5. Teacher view ==================== -->
+<div class="mk-screen">
+    <div class="mk-caption">
+        <h2>5 · My requests — Teacher <span class="mk-route">AssetRequests/MyRequests</span></h2>
+        <p>
+            The same app seen by the role that holds most of the accounts. The sidebar is three items;
+            the page answers one question — where is my request — with a status trail rather than a
+            status word, and the primary action is the one thing a Teacher can do.
+        </p>
+    </div>
+    <div class="mk-frame mk-short">
+        <div class="sab-shell" data-screen data-nav-active="myrequests" data-roles="" data-user="Maria Reyes|Teacher|MR">
+            <div class="sab-main">
+                <main class="sab-content">
+                    <div class="sab-page-header">
+                        <div class="sab-page-header-text">
+                            <h1 class="sab-page-title">My requests</h1>
+                            <p class="sab-page-subtitle">1 waiting · 1 in your hands · 4 closed</p>
+                        </div>
+                        <div class="sab-page-actions">
+                            <button class="btn btn-primary"><svg class="sab-icon" aria-hidden="true"><use href="#i-plus"></use></svg> New request</button>
+                        </div>
+                    </div>
+
+                    <div class="sab-section">
+                        <div class="sab-section-head"><h2 class="sab-section-title">In progress</h2></div>
+                        <div class="sab-section-body">
+                            <div class="sab-identity mb-3">
+                                <div class="sab-identity-media" style="width:56px;height:56px"><svg class="sab-icon sab-icon-lg" aria-hidden="true"><use href="#i-box"></use></svg></div>
+                                <div class="sab-identity-meta">
+                                    <h3 class="sab-identity-name">Epson EB-S41 Projector</h3>
+                                    <p class="sab-identity-sub">Request #318 · Borrow · raised 14 Sep</p>
+                                    <div class="sab-identity-pills"><span class="status-pill status-pending">Pending</span></div>
+                                </div>
+                            </div>
+                            <ol class="sab-timeline">
+                                <li class="sab-timeline-item">
+                                    <span class="sab-timeline-dot sab-timeline-dot-amber"></span>
+                                    <p class="sab-timeline-title">Waiting for an Asset Officer</p>
+                                    <p class="sab-timeline-meta">You will get a notification the moment it is decided.</p>
+                                    <span class="sab-timeline-time">since 14 Sep, 8:52 AM</span>
+                                </li>
+                                <li class="sab-timeline-item">
+                                    <span class="sab-timeline-dot sab-timeline-dot-gray"></span>
+                                    <p class="sab-timeline-title">Request submitted</p>
+                                    <p class="sab-timeline-meta">Grade 9 science fair, 3 days</p>
+                                    <span class="sab-timeline-time">14 Sep 2026, 8:52 AM</span>
+                                </li>
+                            </ol>
+                            <div class="sab-form-actions mt-3">
+                                <button class="btn btn-outline-secondary" data-confirm="Cancel request #318? The Asset Officer will no longer see it." data-confirm-title="Cancel request" data-confirm-ok="Cancel request" data-confirm-variant="danger">Cancel request</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sab-section sab-table-card">
+                        <div class="sab-section-head"><h2 class="sab-section-title">Everything else</h2></div>
+                        <div class="sab-section-body-flush">
+                            <table class="table sab-table-stack mb-0">
+                                <thead><tr><th>Request</th><th>Type</th><th>Item</th><th>Status</th><th></th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-label="Request"><span class="sab-cell-code">#301</span><div class="sab-cell-secondary">2 Sep</div></td>
+                                        <td data-label="Type"><span class="status-pill status-borrow">Borrow</span></td>
+                                        <td data-label="Item"><div class="sab-cell-primary">Lenovo ThinkPad E14</div><div class="sab-cell-secondary">LPT-204 · returned 9 Sep</div></td>
+                                        <td data-label="Status"><span class="status-pill status-fulfilled">Fulfilled</span></td>
+                                        <td class="sab-cell-actions"><a href="#">View</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="Request"><span class="sab-cell-code">#288</span><div class="sab-cell-secondary">21 Aug</div></td>
+                                        <td data-label="Type"><span class="status-pill status-transfer">Transfer</span></td>
+                                        <td data-label="Item"><div class="sab-cell-primary">DSK-441 → Room 204</div></td>
+                                        <td data-label="Status"><span class="status-pill status-rejected">Rejected</span></td>
+                                        <td class="sab-cell-actions"><a href="#">Why?</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="Request"><span class="sab-cell-code">#265</span><div class="sab-cell-secondary">4 Aug</div></td>
+                                        <td data-label="Type"><span class="status-pill status-borrow">Borrow</span></td>
+                                        <td data-label="Item"><div class="sab-cell-primary">BenQ MS550 Projector</div></td>
+                                        <td data-label="Status"><span class="status-pill status-cancelled">Cancelled</span></td>
+                                        <td class="sab-cell-actions"><a href="#">View</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 6. Mobile ==================== -->
+<div class="mk-screen">
+    <div class="mk-caption">
+        <h2>6 · Phone — the walk-around case <span class="mk-route">any list view at 390px</span></h2>
+        <p>
+            An Asset Officer doing a physical count is holding a phone, not a laptop. Below 760px the
+            table restacks into cards via <code>data-label</code>, and the sidebar becomes a drawer
+            behind the ☰ button instead of a horizontally scrolling strip of links.
+        </p>
+    </div>
+    <div class="mk-frame mk-phone">
+        <div class="sab-shell" data-screen data-nav-active="assets" data-roles="approver assetmanager">
+            <div class="sab-main">
+                <main class="sab-content">
+                    <div class="sab-page-header">
+                        <div class="sab-page-header-text">
+                            <h1 class="sab-page-title">Assets</h1>
+                            <p class="sab-page-subtitle">248 units</p>
+                        </div>
+                    </div>
+                    <div class="sab-chips">
+                        <a href="#" class="sab-chip">AV Equipment <span class="sab-chip-x">×</span></a>
+                    </div>
+                    <div class="sab-section sab-table-card">
+                        <div class="sab-section-body-flush">
+                            <table class="table sab-table-stack mb-0">
+                                <thead><tr><th>Code</th><th>Asset</th><th>Status</th><th>Holder</th><th></th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-label="Code"><span class="sab-cell-code">PRJ-014</span></td>
+                                        <td data-label="Asset"><div class="sab-cell-primary">Epson EB-S41</div></td>
+                                        <td data-label="Status"><span class="status-pill status-assigned">Assigned</span></td>
+                                        <td data-label="Holder">Maria Reyes</td>
+                                        <td class="sab-cell-actions"><a href="#">View</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="Code"><span class="sab-cell-code">PRJ-021</span></td>
+                                        <td data-label="Asset"><div class="sab-cell-primary">Epson EB-S41</div></td>
+                                        <td data-label="Status"><span class="status-pill status-available">Available</span></td>
+                                        <td data-label="Holder">AV Room</td>
+                                        <td class="sab-cell-actions"><a href="#">View</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Builds each screen's chrome from the two templates so the navigation
+    // is identical everywhere, the way _Layout makes it identical in the app.
+    (function () {
+        var sidebarTpl = document.getElementById('tpl-sidebar');
+        var topbarTpl = document.getElementById('tpl-topbar');
+
+        document.querySelectorAll('[data-screen]').forEach(function (shell) {
+            var roles = (shell.dataset.roles || '').split(' ').filter(Boolean);
+            var sidebar = sidebarTpl.content.cloneNode(true);
+
+            sidebar.querySelectorAll('[data-role]').forEach(function (el) {
+                if (roles.indexOf(el.dataset.role) === -1) { el.remove(); }
+            });
+            var active = sidebar.querySelector('[data-nav="' + shell.dataset.navActive + '"]');
+            if (active) { active.classList.add('active'); }
+
+            var topbar = topbarTpl.content.cloneNode(true);
+            if (shell.dataset.user) {
+                var parts = shell.dataset.user.split('|');
+                topbar.querySelector('[data-user-name]').textContent = parts[0];
+                topbar.querySelector('[data-user-role]').textContent = parts[1];
+                topbar.querySelector('[data-user-initials]').textContent = parts[2];
+            }
+
+            shell.insertBefore(sidebar, shell.firstChild);
+            shell.querySelector('.sab-main').insertBefore(topbar, shell.querySelector('.sab-main').firstChild);
+        });
+    })();
+</script>
+</body>
+</html>
