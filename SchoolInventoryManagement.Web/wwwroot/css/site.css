@@ -790,5 +790,51 @@ h2 { font-weight: 700; font-size: 1.35rem; color: var(--sab-text); }
   background: var(--sab-surface);
 }
 .sab-table-card .table td { padding: 13px 16px; }
+
+/* .table-sm asked to be compact; the card padding above was overriding it,
+   which made the report breakdowns as tall as the main asset list. */
+.sab-table-card .table-sm > thead > tr > th,
+.sab-table-card .table-sm > tbody > tr > td { padding: 8px 16px; }
 .sab-table-card .table > tbody > tr:last-child > td { border-bottom: 0; }
 .sab-table-card .table > :not(:first-child) { border-top: 0; }
+
+
+/* Title strip on a table card -- the mockup labels each breakdown on the card
+   itself rather than with a bare heading floating above a bare table. */
+.sab-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--sab-border);
+}
+.sab-table-head h4,
+.sab-table-head h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sab-text);
+}
+
+/* Filters that need their labels kept (date ranges, mostly) sit on their own
+   card rather than loose on the page background. */
+.sab-filter-card {
+  background: var(--sab-surface);
+  border: 1px solid var(--sab-border);
+  border-radius: var(--sab-radius);
+  box-shadow: var(--sab-shadow);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.sab-filter-card .form-label { margin-bottom: 4px; }
+
+/* Eight tiles wrapping to seven-and-one looks like a mistake. Fixed tracks
+   keep the inventory summary to even rows at every breakpoint. */
+@media (min-width: 768px) {
+  .report-tiles.is-quad { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1200px) {
+  .report-tiles.is-quad { grid-template-columns: repeat(4, 1fr); }
+}
