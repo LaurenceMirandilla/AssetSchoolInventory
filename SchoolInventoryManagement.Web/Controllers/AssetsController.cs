@@ -222,63 +222,6 @@ namespace SchoolInventoryManagement.Web.Controllers
             return View(asset);
         }
 
-        // GET /Assets/ChangeCondition/5
-        [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
-        public async Task<IActionResult> ChangeCondition(int id)
-        {
-            var asset = await _assetService.GetAssetByIdAsync(id);
-            if (asset is null)
-                return NotFound();
-
-            if (asset.Status == AssetStatus.Disposed)
-            {
-                TempData["ErrorMessage"] =
-                    "This asset is disposed. Restore it before recording a new condition.";
-                return RedirectToAction(nameof(Details), new { id });
-            }
-
-            ViewBag.AssetName = asset.AssetName;
-            ViewBag.AssetCode = asset.AssetCode;
-
-            return View(new ChangeConditionViewModel
-            {
-                AssetID = id,
-                Condition = asset.Condition,
-                RowVersionBase64 = RowVersionHelper.ToBase64(asset.RowVersion)
-            });
-        }
-
-        // POST /Assets/ChangeCondition/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
-        public async Task<IActionResult> ChangeCondition(int id, ChangeConditionViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return await RedisplayChangeConditionAsync(id, model);
-
-            try
-            {
-                var rowVersion = RowVersionHelper.FromBase64(model.RowVersionBase64);
-                await _assetService.ChangeConditionAsync(id, model.Condition, rowVersion, CurrentUserId);
-
-                return RedirectToAction(nameof(Details), new { id });
-            }
-            catch (Exception ex)
-            {
-                HandleServiceException(ex);
-                return await RedisplayChangeConditionAsync(id, model);
-            }
-        }
-
-        private async Task<IActionResult> RedisplayChangeConditionAsync(int id, ChangeConditionViewModel model)
-        {
-            var asset = await _assetService.GetAssetByIdAsync(id);
-            ViewBag.AssetName = asset?.AssetName;
-            ViewBag.AssetCode = asset?.AssetCode;
-            return View(model);
-        }
-
         // GET /Assets/Create
         [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
         public async Task<IActionResult> Create()
