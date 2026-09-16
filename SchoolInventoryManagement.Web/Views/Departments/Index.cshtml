@@ -19,33 +19,35 @@
 
 @if (Model.Any())
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Branch</th>
-                <th>Description</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var department in Model)
-            {
+    <div class="sab-table-card">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@department.DepartmentName</td>
-                    <td>@department.BranchName</td>
-                    <td>@(department.Description ?? "—")</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@department.DepartmentID">Edit</a>
-                        <form asp-action="Delete" asp-route-id="@department.DepartmentID" method="post" class="d-inline" onsubmit="return confirm('Delete this department?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
-                        </form>
-                    </td>
+                    <th>Name</th>
+                    <th>Branch</th>
+                    <th>Description</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var department in Model)
+                {
+                    <tr>
+                        <td>@department.DepartmentName</td>
+                        <td>@department.BranchName</td>
+                        <td>@(department.Description ?? "—")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@department.DepartmentID">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@department.DepartmentID" method="post" class="d-inline" onsubmit="return confirm('Delete this department?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {

@@ -19,34 +19,36 @@
 
 @if (Model.Any())
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Branch</th>
-                <th>Description</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var location in Model)
-            {
+    <div class="sab-table-card">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@location.LocationName</td>
-                    <td>@location.BranchName</td>
-                    <td>@(location.Description ?? "—")</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@location.LocationID">Edit</a>
-                        <a asp-controller="AssetMovements" asp-action="ForLocation" asp-route-id="@location.LocationID" class="ms-2">Movements</a>
-                        <form asp-action="Delete" asp-route-id="@location.LocationID" method="post" class="d-inline" onsubmit="return confirm('Delete this location?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
-                        </form>
-                    </td>
+                    <th>Name</th>
+                    <th>Branch</th>
+                    <th>Description</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var location in Model)
+                {
+                    <tr>
+                        <td>@location.LocationName</td>
+                        <td>@location.BranchName</td>
+                        <td>@(location.Description ?? "—")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@location.LocationID">Edit</a>
+                            <a asp-controller="AssetMovements" asp-action="ForLocation" asp-route-id="@location.LocationID" class="ms-2">Movements</a>
+                            <form asp-action="Delete" asp-route-id="@location.LocationID" method="post" class="d-inline" onsubmit="return confirm('Delete this location?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {

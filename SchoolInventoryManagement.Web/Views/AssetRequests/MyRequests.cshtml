@@ -22,40 +22,42 @@
 
 @if (Model.Any())
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Type</th>
-                <th>What</th>
-                <th>Submitted</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var request in Model)
-            {
+    <div class="sab-table-card">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@request.RequestID</td>
-                    <td><span class="status-pill status-@request.RequestType.ToString().ToLowerInvariant()">@request.RequestType</span></td>
-                    <td>
-                        @if (request.RequestType == SchoolInventoryManagement.DAL.Entities.Enums.RequestType.Borrow)
-                        {
-                            @(request.ModelName ?? "—")
-                        }
-                        else
-                        {
-                            <span class="sab-code">@request.AssetCode</span><text> &rarr; @request.RequestedLocationName</text>
-                        }
-                    </td>
-                    <td>@request.RequestDate.ToString("MMM d, yyyy")</td>
-                    <td><span class="status-pill status-@request.RequestStatus.ToString().ToLowerInvariant()">@request.RequestStatus</span></td>
-                    <td><a asp-action="Details" asp-route-id="@request.RequestID">View</a></td>
+                    <th>#</th>
+                    <th>Type</th>
+                    <th>What</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var request in Model)
+                {
+                    <tr>
+                        <td>@request.RequestID</td>
+                        <td><span class="status-pill status-@request.RequestType.ToString().ToLowerInvariant()">@request.RequestType</span></td>
+                        <td>
+                            @if (request.RequestType == SchoolInventoryManagement.DAL.Entities.Enums.RequestType.Borrow)
+                            {
+                                @(request.ModelName ?? "—")
+                            }
+                            else
+                            {
+                                <span class="sab-code">@request.AssetCode</span><text> &rarr; @request.RequestedLocationName</text>
+                            }
+                        </td>
+                        <td>@request.RequestDate.ToString("MMM d, yyyy")</td>
+                        <td><span class="status-pill status-@request.RequestStatus.ToString().ToLowerInvariant()">@request.RequestStatus</span></td>
+                        <td><a asp-action="Details" asp-route-id="@request.RequestID">View</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {
