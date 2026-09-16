@@ -63,6 +63,14 @@ using (var scope = app.Services.CreateScope())
 }
 app.UseMiddleware<SchoolInventoryManagement.Web.Middleware.ExceptionHandlingMiddleware>();
 
+// Turns a bare status code -- most often the NotFound() an MVC action
+// returns for an id that no longer exists -- into a real page in the app's
+// shell. Without it the browser shows its own blank error, which looks like
+// the site is broken rather than like the record is gone. Re-execute rather
+// than redirect, so the response keeps the original status code and the
+// address bar keeps the URL the user actually asked for.
+app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

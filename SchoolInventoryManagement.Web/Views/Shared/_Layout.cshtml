@@ -46,8 +46,15 @@
                     </a>
                 </li>
                 <li class="sab-nav-item">
-                    <a class="sab-nav-link @(isActive(new[]{"Assets"}) ? "active" : "")" asp-controller="Assets" asp-action="Index">
+                    <a class="sab-nav-link @(isActive(new[]{"Assets"}) && currentAction != "MyAssets" ? "active" : "")"
+                       asp-controller="Assets" asp-action="Index">
                         <span class="sab-nav-label">Assets</span>
+                    </a>
+                </li>
+                <li class="sab-nav-item">
+                    <a class="sab-nav-link @(isActive(new[]{"Assets"}) && currentAction == "MyAssets" ? "active" : "")"
+                       asp-controller="Assets" asp-action="MyAssets">
+                        <span class="sab-nav-label">My Assets</span>
                     </a>
                 </li>
                 <li class="sab-nav-item">

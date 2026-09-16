@@ -198,6 +198,19 @@ namespace SchoolInventoryManagement.Web.Controllers
             return File(csv, "text/csv", CsvExportHelper.TimestampedFileName("assets"));
         }
 
+        // GET /Assets/MyAssets
+        //
+        // The only view of AssetAssignments a non-manager can reach. It is
+        // hard-wired to CurrentUserId rather than taking an id, because
+        // GetActiveAssignmentsForUserAsync does no permission check of its
+        // own -- an id parameter here would let any signed-in user read
+        // anybody else's open assignments.
+        public async Task<IActionResult> MyAssets()
+        {
+            var assignments = await _assignmentService.GetActiveAssignmentsForUserAsync(CurrentUserId);
+            return View(assignments);
+        }
+
         // GET /Assets/Details/5
         public async Task<IActionResult> Details(int id)
         {
