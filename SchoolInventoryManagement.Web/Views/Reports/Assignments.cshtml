@@ -3,78 +3,89 @@
     ViewData["Title"] = "Outstanding Assignments";
 }
 
-<h2>Outstanding Assignments</h2>
-<p class="text-muted">
-    Every asset currently out with someone — an assignment with no return date.
-    Oldest first, so the longest-held units are at the top.
-</p>
+<div class="row g-3 sab-reports-grid">
+    <div class="col-lg-3">
+        @await Html.PartialAsync("_ReportsNav")
+    </div>
+    <div class="col-lg-9">
+        <div class="sab-page-head">
+            <div>
+                <h2>Outstanding Assignments</h2>
+                <p class="sab-page-sub">
+                    Every asset currently out with someone — an assignment with no return date.
+                    Oldest first, so the longest-held units are at the top.
+                </p>
+            </div>
+        </div>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label class="form-label">Branch</label>
-        @Html.DropDownList("branchId", (IEnumerable<SelectListItem>)ViewBag.Branches,
-             "All branches", new { @class = "form-select" })
-    </div>
-    <div class="col-auto">
-        <label class="form-label">Department</label>
-        @Html.DropDownList("departmentId", (IEnumerable<SelectListItem>)ViewBag.Departments,
-             "All departments", new { @class = "form-select" })
-    </div>
-    <div class="col-auto align-self-end">
-        <button type="submit" class="btn btn-secondary">Apply</button>
-        <a asp-action="Assignments" class="btn btn-outline-secondary">Reset</a>
-    </div>
-    <div class="col-auto align-self-end ms-auto">
-        <a asp-action="ExportAssignments"
-           asp-route-branchId="@Context.Request.Query["branchId"]"
-           asp-route-departmentId="@Context.Request.Query["departmentId"]"
-           class="btn btn-primary">Export CSV</a>
-    </div>
-</form>
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-auto">
+                <label class="form-label">Branch</label>
+                @Html.DropDownList("branchId", (IEnumerable<SelectListItem>)ViewBag.Branches,
+                     "All branches", new { @class = "form-select" })
+            </div>
+            <div class="col-auto">
+                <label class="form-label">Department</label>
+                @Html.DropDownList("departmentId", (IEnumerable<SelectListItem>)ViewBag.Departments,
+                     "All departments", new { @class = "form-select" })
+            </div>
+            <div class="col-auto align-self-end">
+                <button type="submit" class="btn btn-secondary">Apply</button>
+                <a asp-action="Assignments" class="btn btn-outline-secondary">Reset</a>
+            </div>
+            <div class="col-auto align-self-end ms-auto">
+                <a asp-action="ExportAssignments"
+                   asp-route-branchId="@Context.Request.Query["branchId"]"
+                   asp-route-departmentId="@Context.Request.Query["departmentId"]"
+                   class="btn btn-primary">Export CSV</a>
+            </div>
+        </form>
 
-<p class="text-muted">@Model.Count asset(s) currently out.</p>
+        <p class="text-muted">@Model.Count asset(s) currently out.</p>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Asset</th>
-            <th>Held by</th>
-            <th>Role</th>
-            <th>Department</th>
-            <th>Issued by</th>
-            <th>Issued</th>
-            <th class="text-end">Days out</th>
-            <th>Condition out</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var row in Model)
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Asset</th>
+                    <th>Held by</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Issued by</th>
+                    <th>Issued</th>
+                    <th class="text-end">Days out</th>
+                    <th>Condition out</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-controller="Assets" asp-action="Details" asp-route-id="@row.AssetID">@row.AssetCode</a>
+                            <div class="text-muted small">@row.AssetName</div>
+                        </td>
+                        <td>
+                            @row.AssignedToName
+                            <div class="text-muted small">@row.AssignedToEmail</div>
+                        </td>
+                        <td>@row.AssignedToRole</td>
+                        <td>@(row.DepartmentName ?? "—")</td>
+                        <td>@row.AssignedByName</td>
+                        <td>@row.AssignmentDate.ToString("MMM d, yyyy")</td>
+                        <td class="text-end">@row.DaysOut</td>
+                        <td><span class="status-pill status-@row.ConditionOnAssignment.ToString().ToLowerInvariant()">@row.ConditionOnAssignment</span></td>
+                        <td>
+                            <a asp-controller="AssetAssignments" asp-action="Return" asp-route-id="@row.AssignmentID">Return</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
         {
-            <tr>
-                <td>
-                    <a asp-controller="Assets" asp-action="Details" asp-route-id="@row.AssetID">@row.AssetCode</a>
-                    <div class="text-muted small">@row.AssetName</div>
-                </td>
-                <td>
-                    @row.AssignedToName
-                    <div class="text-muted small">@row.AssignedToEmail</div>
-                </td>
-                <td>@row.AssignedToRole</td>
-                <td>@(row.DepartmentName ?? "—")</td>
-                <td>@row.AssignedByName</td>
-                <td>@row.AssignmentDate.ToString("MMM d, yyyy")</td>
-                <td class="text-end">@row.DaysOut</td>
-                <td><span class="status-pill status-@row.ConditionOnAssignment.ToString().ToLowerInvariant()">@row.ConditionOnAssignment</span></td>
-                <td>
-                    <a asp-controller="AssetAssignments" asp-action="Return" asp-route-id="@row.AssignmentID">Return</a>
-                </td>
-            </tr>
+            <p class="text-muted">Nothing is currently out.</p>
         }
-    </tbody>
-</table>
-
-@if (!Model.Any())
-{
-    <p class="text-muted">Nothing is currently out.</p>
-}
+    </div>
+</div>

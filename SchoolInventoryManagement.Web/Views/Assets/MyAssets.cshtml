@@ -8,14 +8,16 @@
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
-<div class="d-flex justify-content-between align-items-start flex-wrap mb-3" style="gap:12px;">
+<div class="sab-page-head">
     <div>
-        <h2 class="mb-1">My Assets</h2>
-        <p class="text-muted mb-0">
+        <h2>My Assets</h2>
+        <p class="sab-page-sub">
             @Model.Count unit@(Model.Count == 1 ? "" : "s") currently signed out to you.
         </p>
     </div>
-    <a asp-controller="AssetRequests" asp-action="Create" class="btn btn-primary">+ New Request</a>
+    <div class="sab-page-actions">
+        <a asp-controller="AssetRequests" asp-action="Create" class="btn btn-primary">+ New Request</a>
+    </div>
 </div>
 
 @if (Model.Any())
@@ -47,7 +49,7 @@
                     : daysHeld == 1 ? "1 day ago" : daysHeld + " days ago";
 
                 <tr>
-                    <td><a asp-action="Details" asp-route-id="@assignment.AssetID">@assignment.AssetCode</a></td>
+                    <td><a asp-action="Details" asp-route-id="@assignment.AssetID" class="sab-code">@assignment.AssetCode</a></td>
                     <td><div class="fw-semibold">@assignment.AssetName</div></td>
                     <td>
                         <div>@assignment.AssignmentDate.ToString("MMM d, yyyy")</div>
@@ -69,12 +71,9 @@
 else
 {
     <div class="card">
-        <div class="card-body text-center py-5">
-            <div class="fw-semibold mb-1">Nothing is signed out to you</div>
-            <p class="text-muted mb-3">
-                Anything issued to you appears here until an Asset Officer
-                records its return.
-            </p>
+        <div class="sab-empty">
+            <div class="sab-empty-title">Nothing is signed out to you</div>
+            <p>Anything issued to you appears here until an Asset Officer records its return.</p>
             <a asp-controller="AssetRequests" asp-action="Create" class="btn btn-primary">Request an asset</a>
         </div>
     </div>

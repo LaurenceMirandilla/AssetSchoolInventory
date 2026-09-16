@@ -5,12 +5,12 @@
     var canManage = User.IsInRole("Asset Officer") || User.IsInRole("Administrator");
 }
 
-<div class="d-flex justify-content-between align-items-start flex-wrap mb-3" style="gap:12px;">
+<div class="sab-page-head">
     <div>
-        <h2 class="mb-1">Assets</h2>
-        <p class="text-muted mb-0">@Model.TotalCount registered unit@(Model.TotalCount == 1 ? "" : "s").</p>
+        <h2>Assets</h2>
+        <p class="sab-page-sub">@Model.TotalCount registered unit@(Model.TotalCount == 1 ? "" : "s").</p>
     </div>
-    <div class="d-flex" style="gap:8px;">
+    <div class="sab-page-actions">
         <a asp-action="ExportAssets"
            asp-route-keyword="@Model.Keyword"
            asp-route-categoryId="@Model.CategoryId"
@@ -93,60 +93,69 @@
     }
 </p>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Code</th>
-            <th>Asset</th>
-            <th>Category</th>
-            <th>Condition</th>
-            <th>Status</th>
-            <th>Holder / Location</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var asset in Model.Assets)
-        {
+@if (Model.TotalFilteredCount > 0)
+{
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td><a asp-action="Details" asp-route-id="@asset.AssetID">@asset.AssetCode</a></td>
-                <td>
-                    <div class="fw-semibold">@asset.AssetName</div>
-                    <div class="text-muted small">
-                        @asset.ModelName
-                        @if (!string.IsNullOrWhiteSpace(asset.SerialNumber))
-                        {
-                            <text> &middot; SN @asset.SerialNumber</text>
-                        }
-                    </div>
-                </td>
-                <td>@asset.CategoryName</td>
-                <td><span class="status-pill status-@asset.Condition.ToString().ToLowerInvariant()">@asset.Condition</span></td>
-                <td><span class="status-pill status-@asset.Status.ToString().ToLowerInvariant()">@asset.Status</span></td>
-                <td>
-                    @if (!string.IsNullOrWhiteSpace(asset.AssignedUserName))
-                    {
-                        var initials = string.Concat(asset.AssignedUserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(p => p[0])).ToUpperInvariant();
-                        if (initials.Length > 2) { initials = initials[..2]; }
-                        <div class="d-flex align-items-center" style="gap:8px;">
-                            <span class="sab-avatar" style="width:26px;height:26px;font-size:0.68rem;">@initials</span>
-                            <span>@asset.AssignedUserName</span>
-                        </div>
-                    }
-                    else
-                    {
-                        @(asset.CurrentLocationName ?? "—")
-                    }
-                </td>
-                <td><a asp-action="Details" asp-route-id="@asset.AssetID">View</a></td>
+                <th>Code</th>
+                <th>Asset</th>
+                <th>Category</th>
+                <th>Condition</th>
+                <th>Status</th>
+                <th>Holder / Location</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var asset in Model.Assets)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@asset.AssetID" class="sab-code">@asset.AssetCode</a></td>
+                    <td>
+                        <div class="fw-semibold">@asset.AssetName</div>
+                        <div class="text-muted small">
+                            @asset.ModelName
+                            @if (!string.IsNullOrWhiteSpace(asset.SerialNumber))
+                            {
+                                <text> &middot; SN @asset.SerialNumber</text>
+                            }
+                        </div>
+                    </td>
+                    <td>@asset.CategoryName</td>
+                    <td><span class="status-pill status-@asset.Condition.ToString().ToLowerInvariant()">@asset.Condition</span></td>
+                    <td><span class="status-pill status-@asset.Status.ToString().ToLowerInvariant()">@asset.Status</span></td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(asset.AssignedUserName))
+                        {
+                            var initials = string.Concat(asset.AssignedUserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(p => p[0])).ToUpperInvariant();
+                            if (initials.Length > 2) { initials = initials[..2]; }
+                            <div class="d-flex align-items-center" style="gap:8px;">
+                                <span class="sab-avatar sab-avatar-soft sab-avatar-sm">@initials</span>
+                                <span>@asset.AssignedUserName</span>
+                            </div>
+                        }
+                        else
+                        {
+                            @(asset.CurrentLocationName ?? "—")
+                        }
+                    </td>
+                    <td><a asp-action="Details" asp-route-id="@asset.AssetID">View</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @if (Model.TotalFilteredCount == 0)
 {
-    <p class="text-muted">No assets found.</p>
+    <div class="card">
+        <div class="sab-empty">
+            <div class="sab-empty-title">No assets match these filters</div>
+            <p>Every record here is one physical unit. Clear the filters to see the whole inventory.</p>
+            <a asp-action="Index" class="btn btn-outline-secondary">Reset filters</a>
+        </div>
+    </div>
 }
 else if (Model.TotalPages > 1)
 {

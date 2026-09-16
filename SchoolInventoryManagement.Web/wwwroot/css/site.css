@@ -393,6 +393,11 @@ a:hover { color: var(--sab-green-dark); text-decoration: underline; }
 .status-damaged          { background: var(--sab-red-bg);     color: var(--sab-red-text); }
 .status-disposed         { background: var(--sab-gray-bg);    color: var(--sab-gray-text); }
 
+/* Users.Status is a plain string column, not an enum, but it renders through
+   the same pill so it needs the same two classes. */
+.status-active   { background: var(--sab-green-light); color: var(--sab-green-dark); }
+.status-inactive { background: var(--sab-gray-bg);     color: var(--sab-gray-text); }
+
 /* ConditionStatus (falls back cleanly if unstyled, but give the common ones) */
 .status-new       { background: var(--sab-green-light); color: var(--sab-green-dark); }
 .status-excellent { background: var(--sab-green-light); color: var(--sab-green-dark); }

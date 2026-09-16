@@ -1,4 +1,3 @@
-@using Microsoft.AspNetCore.Mvc.Rendering
 @using SchoolInventoryManagement.Web.Controllers
 @using SchoolInventoryManagement.DAL.Constants
 @model List<SchoolInventoryManagement.BLL.DTOs.UserResponseDTO>
@@ -10,15 +9,6 @@
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
     var statusFilter = (ViewData["StatusFilter"] as string) ?? UsersController.StatusFilterActive;
-
-    var statusOptions = new SelectList(
-        new[]
-        {
-            UsersController.StatusFilterActive,
-            UsersController.StatusFilterInactive,
-            UsersController.StatusFilterAll
-        },
-        statusFilter);
 }
 @if (TempData["StatusMessage"] != null)
 {
@@ -29,37 +19,32 @@
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Users</h2>
-    <a asp-action="Create" class="btn btn-primary">+ New User</a>
+<div class="sab-page-head">
+    <div>
+        <h2>Users</h2>
+        <p class="sab-page-sub">
+            Accounts are never deleted. Deactivating blocks sign-in and every privileged
+            action immediately, while keeping the person's history intact.
+        </p>
+    </div>
+    <div class="sab-page-actions">
+        <a asp-action="Create" class="btn btn-primary">+ New User</a>
+    </div>
 </div>
 
-<form method="get" class="row g-2 align-items-center mb-3">
-    <div class="col-auto">
-        <label for="status" class="col-form-label">Show</label>
+<div class="d-flex justify-content-between align-items-center flex-wrap mb-3" style="gap:12px;">
+    <div class="sab-seg">
+        <a asp-action="Index" asp-route-status="@UsersController.StatusFilterActive"
+           class="@(statusFilter == UsersController.StatusFilterActive ? "active" : "")">Active</a>
+        <a asp-action="Index" asp-route-status="@UsersController.StatusFilterInactive"
+           class="@(statusFilter == UsersController.StatusFilterInactive ? "active" : "")">Inactive</a>
+        <a asp-action="Index" asp-route-status="@UsersController.StatusFilterAll"
+           class="@(statusFilter == UsersController.StatusFilterAll ? "active" : "")">All</a>
     </div>
-    <div class="col-auto">
-        @* Html.DropDownList rather than a <select asp-items="...">: there is
-           no model property to bind here, and SelectTagHelper throws at RENDER
-           time when asp-items appears without asp-for -- a failure the
-           compiler cannot catch. The current value round-trips through the
-           SelectList constructor above. *@
-        @Html.DropDownList(
-            "status",
-            statusOptions,
-            new { @class = "form-select", onchange = "this.form.submit()" })
-    </div>
-    <div class="col-auto">
-        <noscript><button type="submit" class="btn btn-secondary">Apply</button></noscript>
-    </div>
-</form>
-
-<p class="text-muted">
-    Users are never deleted — deactivating one blocks their sign-in while
-    keeping every record they're attached to intact. Anonymizing goes further
-    and permanently removes the name and email, for someone who has left and
-    asked to be forgotten; the records stay, pointing at a tombstone.
-</p>
+    <span class="text-muted small">
+        @Model.Count account@(Model.Count == 1 ? "" : "s") shown
+    </span>
+</div>
 
 <table class="table table-striped">
     <thead>
@@ -80,16 +65,37 @@
             var isAnonymized = AnonymizedUser.IsAnonymizedEmail(user.Email);
 
             <tr>
-                <td>@user.FirstName @user.LastName</td>
+                <td>
+                    <div class="d-flex align-items-center" style="gap:9px;">
+                        @{
+                            var full = $"{user.FirstName} {user.LastName}".Trim();
+                            var userInitials = string.Concat(full
+                                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(part => part[0])).ToUpperInvariant();
+                            if (userInitials.Length > 2) { userInitials = userInitials[..2]; }
+                        }
+                        <span class="sab-avatar sab-avatar-soft sab-avatar-sm">@userInitials</span>
+                        <div>
+                            <div class="fw-semibold">@full</div>
+                            @if (isSelf)
+                            {
+                                <div class="text-muted small">you</div>
+                            }
+                        </div>
+                    </div>
+                </td>
                 <td>@user.Email</td>
                 <td>@user.RoleName</td>
                 <td>@user.DepartmentName</td>
                 <td>@user.BranchName</td>
                 <td>
-                    @user.Status
                     @if (isAnonymized)
                     {
-                        <span class="badge bg-secondary ms-1">Anonymized</span>
+                        <span class="status-pill status-cancelled">Anonymized</span>
+                    }
+                    else
+                    {
+                        <span class="status-pill status-@user.Status.ToLowerInvariant()">@user.Status</span>
                     }
                 </td>
                 <td>
@@ -144,3 +150,20 @@
         }
     </tbody>
 </table>
+
+<div class="row g-3 mt-1">
+    <div class="col-md-6">
+        <div class="sab-callout">
+            <span class="sab-callout-label">Deactivate</span>
+            Reversible. Blocks sign-in and takes effect on any open session at
+            once — it does not wait for their cookie to expire.
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="sab-callout sab-callout-danger">
+            <span class="sab-callout-label">Anonymize</span>
+            Permanent. Clears the name and email for someone who has asked to be
+            forgotten, leaving their records pointing at a tombstone.
+        </div>
+    </div>
+</div>

@@ -7,47 +7,64 @@
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">My Requests</h2>
-    <a asp-action="Create" class="btn btn-primary">+ New Request</a>
+<div class="sab-page-head">
+    <div>
+        <h2>My Requests</h2>
+        <p class="sab-page-sub">
+            You can cancel a request while it is still pending. Only you can —
+            staff reject rather than cancel on your behalf.
+        </p>
+    </div>
+    <div class="sab-page-actions">
+        <a asp-action="Create" class="btn btn-primary">+ New Request</a>
+    </div>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Type</th>
-            <th>What</th>
-            <th>Submitted</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var request in Model)
-        {
-            <tr>
-                <td>@request.RequestID</td>
-                <td>@request.RequestType</td>
-                <td>
-                    @if (request.RequestType == SchoolInventoryManagement.DAL.Entities.Enums.RequestType.Borrow)
-                    {
-                        @(request.ModelName ?? "—")
-                    }
-                    else
-                    {
-                        @($"{request.AssetCode} → {request.RequestedLocationName}")
-                    }
-                </td>
-                <td>@request.RequestDate.ToString("MMM d, yyyy")</td>
-                <td>@request.RequestStatus</td>
-                <td><a asp-action="Details" asp-route-id="@request.RequestID">View</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (!Model.Any())
+@if (Model.Any())
 {
-    <p class="text-muted">You haven't submitted any requests yet.</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>What</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var request in Model)
+            {
+                <tr>
+                    <td>@request.RequestID</td>
+                    <td><span class="status-pill status-@request.RequestType.ToString().ToLowerInvariant()">@request.RequestType</span></td>
+                    <td>
+                        @if (request.RequestType == SchoolInventoryManagement.DAL.Entities.Enums.RequestType.Borrow)
+                        {
+                            @(request.ModelName ?? "—")
+                        }
+                        else
+                        {
+                            <span class="sab-code">@request.AssetCode</span><text> &rarr; @request.RequestedLocationName</text>
+                        }
+                    </td>
+                    <td>@request.RequestDate.ToString("MMM d, yyyy")</td>
+                    <td><span class="status-pill status-@request.RequestStatus.ToString().ToLowerInvariant()">@request.RequestStatus</span></td>
+                    <td><a asp-action="Details" asp-route-id="@request.RequestID">View</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
+else
+{
+    <div class="card">
+        <div class="sab-empty">
+            <div class="sab-empty-title">No requests yet</div>
+            <p>Borrow asks for a model and lets staff pick the unit. Transfer moves a specific unit to another location.</p>
+            <a asp-action="Create" class="btn btn-primary">+ New Request</a>
+        </div>
+    </div>
+}
+
