@@ -1,0 +1,69 @@
+@model SchoolInventoryManagement.Web.ViewModels.ChangeConditionViewModel
+@using SchoolInventoryManagement.DAL.Entities.Enums
+@{
+    ViewData["Title"] = "Change Condition";
+}
+
+<nav class="mb-2" style="font-size:0.85rem;">
+    <a asp-action="Index" class="text-muted">Assets</a>
+    <span class="text-muted mx-1">&rsaquo;</span>
+    <a asp-action="Details" asp-route-id="@Model.AssetID" class="text-muted">@ViewBag.AssetCode</a>
+    <span class="text-muted mx-1">&rsaquo;</span>
+    <span class="text-muted">Change condition</span>
+</nav>
+
+<div class="sab-page-head">
+    <div>
+        <h2>Change condition</h2>
+        <p class="sab-page-sub"><span class="sab-code">@ViewBag.AssetCode</span> &middot; @ViewBag.AssetName</p>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="ChangeCondition" asp-route-id="@Model.AssetID" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="AssetID" />
+                    <input type="hidden" asp-for="RowVersionBase64" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Condition" class="form-label">Condition now</label>
+                        <select asp-for="Condition" class="form-select"
+                                asp-items="Html.GetEnumSelectList<ConditionStatus>()"></select>
+                        <span asp-validation-for="Condition" class="text-danger"></span>
+                        <div class="form-text">
+                            This records the condition as it stands today. It does not move
+                            the asset or change who holds it.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save condition</button>
+                    <a asp-action="Details" asp-route-id="@Model.AssetID" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="sab-callout">
+            <span class="sab-callout-label">When to use this</span>
+            Condition normally changes as a side effect of issuing, returning or
+            transferring a unit. Use this when it changed on its own — a unit
+            inspected on the shelf, or damage noticed between loans.
+        </div>
+        <div class="sab-callout sab-callout-warn mt-3">
+            <span class="sab-callout-label">Recorded against you</span>
+            The change is written to the audit trail with your name, the old
+            value and the new one.
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

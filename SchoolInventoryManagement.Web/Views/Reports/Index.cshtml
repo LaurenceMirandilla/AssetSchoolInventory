@@ -69,7 +69,7 @@
                     @foreach (var row in Model.ByStatus)
                     {
                         <tr>
-                            <td><span class="status-pill status-@row.Label.ToLowerInvariant()">@row.Label</span></td>
+                            <td><span class="status-pill status-@row.Label.ToLowerInvariant()">@DisplayText.Humanize(row.Label)</span></td>
                             <td class="text-end">@row.Count</td>
                             <td class="text-end">@row.TotalValue.ToString("C0")</td>
                             <td>
@@ -89,7 +89,7 @@
                     @foreach (var row in Model.ByCondition)
                     {
                         <tr>
-                            <td><span class="status-pill status-@row.Label.ToLowerInvariant()">@row.Label</span></td>
+                            <td><span class="status-pill status-@row.Label.ToLowerInvariant()">@DisplayText.Humanize(row.Label)</span></td>
                             <td class="text-end">@row.Count</td>
                             <td class="text-end">@row.TotalValue.ToString("C0")</td>
                         </tr>

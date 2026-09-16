@@ -118,8 +118,8 @@
                             </div>
                         </td>
                         <td>@asset.CategoryName</td>
-                        <td><span class="status-pill status-@asset.Condition.ToString().ToLowerInvariant()">@asset.Condition</span></td>
-                        <td><span class="status-pill status-@asset.Status.ToString().ToLowerInvariant()">@asset.Status</span></td>
+                        <td><span class="status-pill status-@asset.Condition.ToString().ToLowerInvariant()">@DisplayText.Humanize(asset.Condition.ToString())</span></td>
+                        <td><span class="status-pill status-@asset.Status.ToString().ToLowerInvariant()">@DisplayText.Humanize(asset.Status.ToString())</span></td>
                         <td>
                             @if (!string.IsNullOrWhiteSpace(asset.AssignedUserName))
                             {

@@ -79,7 +79,7 @@
                             <td>@row.AssignedByName</td>
                             <td>@row.AssignmentDate.ToString("MMM d, yyyy")</td>
                             <td class="text-end">@row.DaysOut</td>
-                            <td><span class="status-pill status-@row.ConditionOnAssignment.ToString().ToLowerInvariant()">@row.ConditionOnAssignment</span></td>
+                            <td><span class="status-pill status-@row.ConditionOnAssignment.ToString().ToLowerInvariant()">@DisplayText.Humanize(row.ConditionOnAssignment.ToString())</span></td>
                             <td>
                                 <a asp-controller="AssetAssignments" asp-action="Return" asp-route-id="@row.AssignmentID">Return</a>
                             </td>

@@ -58,7 +58,7 @@
                         </td>
                         <td>
                             <span class="status-pill status-@assignment.ConditionOnAssignment.ToString().ToLowerInvariant()">
-                                @assignment.ConditionOnAssignment
+                                @DisplayText.Humanize(assignment.ConditionOnAssignment.ToString())
                             </span>
                         </td>
                         <td>@assignment.AssignedByUser.FullName</td>

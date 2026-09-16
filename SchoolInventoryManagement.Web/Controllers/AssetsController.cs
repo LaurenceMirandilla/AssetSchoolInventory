@@ -11,6 +11,7 @@ using SchoolInventoryManagement.DAL.Entities.Enums;
 using SchoolInventoryManagement.Web.Helpers;
 using SchoolInventoryManagement.Web.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -218,7 +219,143 @@ namespace SchoolInventoryManagement.Web.Controllers
             if (asset is null)
                 return NotFound();
 
-            return View(asset);
+            var model = new AssetDetailsViewModel { Asset = asset };
+
+            // The asset row knows WHO holds it but not since when or in what
+            // condition it went out; that lives on the assignment.
+            if (asset.ActiveAssignmentID.HasValue)
+                model.ActiveAssignment =
+                    await _assignmentService.GetAssignmentByIdAsync(asset.ActiveAssignmentID.Value);
+
+            model.Timeline = await BuildTimelineAsync(id);
+
+            return View(model);
+        }
+
+        // The History card on the asset page. Reads the same three services
+        // the full History page does and flattens them into one list, so a
+        // return and the issue it closes appear as two separate events in
+        // date order rather than as one row you have to read backwards.
+        private async Task<List<AssetTimelineEntry>> BuildTimelineAsync(int assetId)
+        {
+            var entries = new List<AssetTimelineEntry>();
+
+            foreach (var a in await _assignmentService.GetAssignmentHistoryForAssetAsync(assetId))
+            {
+                entries.Add(new AssetTimelineEntry
+                {
+                    When = a.AssignmentDate,
+                    Title = $"Issued to {a.AssignedToUser.FullName}",
+                    Meta = $"Condition at hand-over: {a.ConditionOnAssignment} \u00b7 by {a.AssignedByUser.FullName}",
+                    StatusLabel = nameof(AssetStatus.Assigned)
+                });
+
+                if (a.ReturnDate.HasValue)
+                {
+                    entries.Add(new AssetTimelineEntry
+                    {
+                        When = a.ReturnDate.Value,
+                        Title = $"Returned by {a.AssignedToUser.FullName}",
+                        Meta = a.ConditionOnReturn is null
+                            ? "Condition on return not recorded"
+                            : $"Condition on return: {a.ConditionOnReturn}",
+                        StatusLabel = nameof(AssetStatus.Available)
+                    });
+                }
+            }
+
+            foreach (var m in await _movementService.GetMovementHistoryForAssetAsync(assetId))
+            {
+                var from = m.SourceLocationName ?? "somewhere unrecorded";
+                entries.Add(new AssetTimelineEntry
+                {
+                    When = m.DateMoved,
+                    Title = $"Moved to {m.DestinationLocationName}",
+                    Meta = $"From {from} \u00b7 reason: {m.ReasonForTransfer}",
+                    StatusLabel = nameof(AssetStatus.InTransit)
+                });
+            }
+
+            foreach (var d in await _disposalService.GetDisposalHistoryForAssetAsync(assetId))
+            {
+                entries.Add(new AssetTimelineEntry
+                {
+                    When = d.DisposalDate,
+                    Title = "Disposed",
+                    Meta = $"{d.ReasonForDisposal} \u00b7 {d.DisposalMethod} \u00b7 approved by {d.ApprovedByUser.FullName}",
+                    StatusLabel = nameof(AssetStatus.Disposed)
+                });
+
+                if (d.RestoredDate.HasValue)
+                {
+                    entries.Add(new AssetTimelineEntry
+                    {
+                        When = d.RestoredDate.Value,
+                        Title = "Restored to service",
+                        Meta = d.RestoredByUser is null ? "" : $"by {d.RestoredByUser.FullName}",
+                        StatusLabel = nameof(AssetStatus.Available)
+                    });
+                }
+            }
+
+            return entries.OrderByDescending(e => e.When).Take(8).ToList();
+        }
+
+        // GET /Assets/ChangeCondition/5
+        [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
+        public async Task<IActionResult> ChangeCondition(int id)
+        {
+            var asset = await _assetService.GetAssetByIdAsync(id);
+            if (asset is null)
+                return NotFound();
+
+            if (asset.Status == AssetStatus.Disposed)
+            {
+                TempData["ErrorMessage"] =
+                    "This asset is disposed. Restore it before recording a new condition.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            ViewBag.AssetName = asset.AssetName;
+            ViewBag.AssetCode = asset.AssetCode;
+
+            return View(new ChangeConditionViewModel
+            {
+                AssetID = id,
+                Condition = asset.Condition,
+                RowVersionBase64 = RowVersionHelper.ToBase64(asset.RowVersion)
+            });
+        }
+
+        // POST /Assets/ChangeCondition/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleNames.AssetOfficer + "," + RoleNames.Administrator)]
+        public async Task<IActionResult> ChangeCondition(int id, ChangeConditionViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return await RedisplayChangeConditionAsync(id, model);
+
+            try
+            {
+                var rowVersion = RowVersionHelper.FromBase64(model.RowVersionBase64);
+                await _assetService.ChangeConditionAsync(id, model.Condition, rowVersion, CurrentUserId);
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch (Exception ex)
+            {
+                HandleServiceException(ex);
+                return await RedisplayChangeConditionAsync(id, model);
+            }
+        }
+
+        private async Task<IActionResult> RedisplayChangeConditionAsync(int id, ChangeConditionViewModel model)
+        {
+            var asset = await _assetService.GetAssetByIdAsync(id);
+            ViewBag.AssetName = asset?.AssetName;
+            ViewBag.AssetCode = asset?.AssetCode;
+            return View(model);
         }
 
         // GET /Assets/Create

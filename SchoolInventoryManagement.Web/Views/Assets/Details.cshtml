@@ -1,6 +1,10 @@
-﻿@model SchoolInventoryManagement.BLL.DTOs.AssetResponseDTO
+@model SchoolInventoryManagement.Web.ViewModels.AssetDetailsViewModel
+@using SchoolInventoryManagement.DAL.Entities.Enums
 @{
-    ViewData["Title"] = Model.AssetName;
+    var asset = Model.Asset;
+    ViewData["Title"] = asset.AssetName;
+    var canManage = User.IsInRole("Asset Officer") || User.IsInRole("Administrator");
+    var rowVersion = Convert.ToBase64String(asset.RowVersion);
 }
 
 @if (TempData["ErrorMessage"] != null)
@@ -11,61 +15,66 @@
 <nav class="mb-2" style="font-size:0.85rem;">
     <a asp-action="Index" class="text-muted">Assets</a>
     <span class="text-muted mx-1">&rsaquo;</span>
-    <span class="sab-code">@Model.AssetCode</span>
+    <span class="sab-code">@asset.AssetCode</span>
 </nav>
 
-<div class="d-flex justify-content-between align-items-start flex-wrap mb-1" style="gap:12px;">
+<div class="sab-page-head">
     <div>
-        <h2 class="mb-0 d-flex align-items-center" style="gap:10px;">
-            @Model.AssetName
-            <span class="status-pill status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span>
+        <h2 class="d-flex align-items-center" style="gap:10px;">
+            @asset.AssetName
+            <span class="status-pill status-@asset.Status.ToString().ToLowerInvariant()">@DisplayText.Humanize(asset.Status.ToString())</span>
         </h2>
-        <p class="text-muted mb-3">
-            <span class="sab-code">@Model.AssetCode</span> &middot; @Model.ModelName
-            @if (!string.IsNullOrWhiteSpace(Model.SerialNumber))
+        <p class="sab-page-sub">
+            <span class="sab-code">@asset.AssetCode</span> &middot; @asset.ModelName
+            @if (!string.IsNullOrWhiteSpace(asset.SerialNumber))
             {
-                <text>&middot; Serial @Model.SerialNumber</text>
+                <text>&middot; Serial @asset.SerialNumber</text>
             }
         </p>
     </div>
 
-    @if (User.IsInRole("Asset Officer") || User.IsInRole("Administrator"))
+    @if (canManage)
     {
-        <div class="d-flex" style="gap:8px;">
-            <a asp-action="Edit" asp-route-id="@Model.AssetID" class="btn btn-outline-secondary">Edit</a>
+        <div class="sab-page-actions">
+            <a asp-action="Edit" asp-route-id="@asset.AssetID" class="btn btn-outline-secondary">Edit</a>
 
-            @if (Model.Status == SchoolInventoryManagement.DAL.Entities.Enums.AssetStatus.Disposed)
+            @if (asset.Status != AssetStatus.Disposed)
             {
-                <form asp-action="Restore" asp-route-id="@Model.AssetID" method="post" onsubmit="return confirm('Restore this asset to Available?');">
+                <a asp-action="ChangeCondition" asp-route-id="@asset.AssetID" class="btn btn-outline-secondary">Change condition</a>
+            }
+
+            @if (asset.Status == AssetStatus.Disposed)
+            {
+                <form asp-action="Restore" asp-route-id="@asset.AssetID" method="post" onsubmit="return confirm('Restore this asset to Available?');">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="rowVersionBase64" value="@Convert.ToBase64String(Model.RowVersion)" />
+                    <input type="hidden" name="rowVersionBase64" value="@rowVersion" />
                     <button type="submit" class="btn btn-success">Restore</button>
                 </form>
             }
-            else if (Model.Status == SchoolInventoryManagement.DAL.Entities.Enums.AssetStatus.UnderMaintenance)
+            else if (asset.Status == AssetStatus.UnderMaintenance)
             {
-                <form asp-action="ReturnToService" asp-route-id="@Model.AssetID" method="post" onsubmit="return confirm('Mark this asset Available again?');">
+                <form asp-action="ReturnToService" asp-route-id="@asset.AssetID" method="post" onsubmit="return confirm('Mark this asset Available again?');">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="rowVersionBase64" value="@Convert.ToBase64String(Model.RowVersion)" />
+                    <input type="hidden" name="rowVersionBase64" value="@rowVersion" />
                     <button type="submit" class="btn btn-success">Return to Service</button>
                 </form>
             }
-            else if (Model.Status == SchoolInventoryManagement.DAL.Entities.Enums.AssetStatus.Available)
+            else if (asset.Status == AssetStatus.Available)
             {
-                <a asp-controller="AssetMovements" asp-action="Transfer" asp-route-id="@Model.AssetID" class="btn btn-outline-secondary">Transfer</a>
-                <a asp-action="Dispose" asp-route-id="@Model.AssetID" class="btn btn-outline-danger">Dispose</a>
+                <a asp-controller="AssetMovements" asp-action="Transfer" asp-route-id="@asset.AssetID" class="btn btn-outline-secondary">Transfer</a>
 
-                <form asp-action="SendToMaintenance" asp-route-id="@Model.AssetID" method="post" onsubmit="return confirm('Send this asset for maintenance?');">
+                <form asp-action="SendToMaintenance" asp-route-id="@asset.AssetID" method="post" onsubmit="return confirm('Send this asset for maintenance?');">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="rowVersionBase64" value="@Convert.ToBase64String(Model.RowVersion)" />
+                    <input type="hidden" name="rowVersionBase64" value="@rowVersion" />
                     <button type="submit" class="btn btn-outline-secondary">Send to Maintenance</button>
                 </form>
 
-                <a asp-controller="AssetAssignments" asp-action="Assign" asp-route-id="@Model.AssetID" class="btn btn-primary">Assign</a>
+                <a asp-action="Dispose" asp-route-id="@asset.AssetID" class="btn btn-outline-danger">Dispose</a>
+                <a asp-controller="AssetAssignments" asp-action="Assign" asp-route-id="@asset.AssetID" class="btn btn-primary">Assign</a>
             }
-            else if (Model.Status == SchoolInventoryManagement.DAL.Entities.Enums.AssetStatus.Assigned && Model.ActiveAssignmentID.HasValue)
+            else if (asset.Status == AssetStatus.Assigned && asset.ActiveAssignmentID.HasValue)
             {
-                <a asp-controller="AssetAssignments" asp-action="Return" asp-route-id="@Model.ActiveAssignmentID" class="btn btn-primary">Record return</a>
+                <a asp-controller="AssetAssignments" asp-action="Return" asp-route-id="@asset.ActiveAssignmentID" class="btn btn-primary">Record return</a>
             }
         </div>
     }
@@ -75,82 +84,132 @@
     <div class="col-lg-8">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="mb-3">Details</h5>
+                <div class="sab-card-head"><h5>Details</h5></div>
                 <div class="row row-cols-1 row-cols-md-3 g-3">
                     <div class="col">
                         <div class="text-muted small">Category</div>
-                        <div class="fw-semibold">@Model.CategoryName</div>
+                        <div class="fw-semibold">@asset.CategoryName</div>
                     </div>
                     <div class="col">
                         <div class="text-muted small">Model</div>
-                        <div class="fw-semibold">@Model.ModelName</div>
+                        <div class="fw-semibold">@asset.ModelName</div>
                     </div>
                     <div class="col">
                         <div class="text-muted small">Condition</div>
-                        <div class="fw-semibold">@Model.Condition</div>
+                        <div class="fw-semibold">
+                            <span class="status-pill status-@asset.Condition.ToString().ToLowerInvariant()">@DisplayText.Humanize(asset.Condition.ToString())</span>
+                        </div>
                     </div>
 
                     <div class="col">
                         <div class="text-muted small">Acquired</div>
-                        <div class="fw-semibold">@(Model.AcquisitionDate?.ToString("MMM d, yyyy") ?? "—")</div>
+                        <div class="fw-semibold">@(asset.AcquisitionDate?.ToString("MMM d, yyyy") ?? "—")</div>
                     </div>
                     <div class="col">
                         <div class="text-muted small">Cost</div>
-                        <div class="fw-semibold">@(Model.AcquisitionCost?.ToString("C") ?? "—")</div>
+                        <div class="fw-semibold">@(asset.AcquisitionCost?.ToString("C") ?? "—")</div>
                     </div>
                     <div class="col">
-                        <div class="text-muted small">Warranty</div>
-                        <div class="fw-semibold">@(Model.WarrantyInformation ?? "—")</div>
+                        <div class="text-muted small">Warranty until</div>
+                        <div class="fw-semibold">@(asset.WarrantyInformation ?? "—")</div>
                     </div>
 
                     <div class="col">
                         <div class="text-muted small">Branch</div>
-                        <div class="fw-semibold">@Model.BranchName</div>
+                        <div class="fw-semibold">@asset.BranchName</div>
                     </div>
                     <div class="col">
                         <div class="text-muted small">Department</div>
-                        <div class="fw-semibold">@(Model.DepartmentName ?? "—")</div>
+                        <div class="fw-semibold">@(asset.DepartmentName ?? "—")</div>
                     </div>
                     <div class="col">
                         <div class="text-muted small">Location</div>
-                        <div class="fw-semibold">@(Model.CurrentLocationName ?? (Model.AssignedUserName != null ? "— with holder" : "—"))</div>
+                        <div class="fw-semibold">
+                            @(asset.CurrentLocationName ?? (asset.AssignedUserName != null ? "— with holder" : "—"))
+                        </div>
                     </div>
                 </div>
 
-                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                @if (!string.IsNullOrWhiteSpace(asset.Description))
                 {
                     <hr />
                     <div class="text-muted small">Description</div>
-                    <div>@Model.Description</div>
+                    <div>@asset.Description</div>
                 }
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1">History</h5>
-                    <p class="text-muted mb-0 small">Assignments, movements, disposals and the audit trail for this unit.</p>
-                </div>
-                <a asp-action="History" asp-route-id="@Model.AssetID" class="btn btn-outline-secondary">View History</a>
+        @* The events themselves, rather than a button promising them. The
+           full audit trail -- which also records edits -- stays on History. *@
+        <div class="sab-table-card">
+            <div class="sab-table-head">
+                <h5>History</h5>
+                <a asp-action="History" asp-route-id="@asset.AssetID" class="small">Assignments &middot; movements &middot; disposals &middot; audit</a>
             </div>
+
+            @if (Model.Timeline.Any())
+            {
+                <div class="px-3">
+                    @foreach (var entry in Model.Timeline)
+                    {
+                        <div class="sab-row">
+                            <div class="d-flex" style="gap:16px; min-width:0;">
+                                <span class="text-muted small text-nowrap" style="width:92px; flex-shrink:0;">
+                                    @entry.When.ToString("dd MMM yyyy")
+                                </span>
+                                <div style="min-width:0;">
+                                    <div class="sab-row-title">@entry.Title</div>
+                                    @if (!string.IsNullOrWhiteSpace(entry.Meta))
+                                    {
+                                        <div class="sab-row-meta">@entry.Meta</div>
+                                    }
+                                </div>
+                            </div>
+                            <span class="status-pill status-@entry.StatusLabel.ToLowerInvariant()">@DisplayText.Humanize(entry.StatusLabel)</span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="sab-empty">
+                    <p class="mb-0">Nothing has happened to this unit yet beyond registering it.</p>
+                </div>
+            }
         </div>
     </div>
 
     <div class="col-lg-4">
-        @if (!string.IsNullOrWhiteSpace(Model.AssignedUserName))
+        @if (Model.ActiveAssignment is not null)
         {
+            var holder = Model.ActiveAssignment.AssignedToUser;
+            var holderInitials = string.Concat(holder.FullName
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Select(part => part[0])).ToUpperInvariant();
+            if (holderInitials.Length > 2) { holderInitials = holderInitials[..2]; }
+
             <div class="card mb-3">
                 <div class="card-body">
-                    <h6 class="text-muted small mb-3" style="text-transform:uppercase; letter-spacing:.04em;">Current holder</h6>
-                    <div class="d-flex align-items-center" style="gap:10px;">
-                        <span class="sab-avatar sab-avatar-soft">
-                            @string.Concat(Model.AssignedUserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(p => p[0])).ToUpperInvariant()
-                        </span>
+                    <div class="sab-card-head"><h5>Current holder</h5></div>
+                    <div class="d-flex align-items-center mb-3" style="gap:10px;">
+                        <span class="sab-avatar sab-avatar-soft">@holderInitials</span>
                         <div>
-                            <div class="fw-semibold">@Model.AssignedUserName</div>
-                            <div class="text-muted small">@(Model.DepartmentName ?? "—")</div>
+                            <div class="fw-semibold">@holder.FullName</div>
+                            <div class="text-muted small">@holder.RoleName @(asset.DepartmentName is null ? "" : "· " + asset.DepartmentName)</div>
                         </div>
+                    </div>
+
+                    <div class="sab-row">
+                        <span class="text-muted small">Issued</span>
+                        <span>@Model.ActiveAssignment.AssignmentDate.ToString("dd MMM yyyy")</span>
+                    </div>
+                    <div class="sab-row">
+                        <span class="text-muted small">Days out</span>
+                        <span>@Model.DaysOut</span>
+                    </div>
+                    <div class="sab-row">
+                        <span class="text-muted small">At hand-over</span>
+                        <span>@Model.ActiveAssignment.ConditionOnAssignment</span>
                     </div>
                 </div>
             </div>
@@ -158,23 +217,33 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <h6 class="text-muted small mb-3" style="text-transform:uppercase; letter-spacing:.04em;">Photo &amp; label</h6>
+                <div class="sab-card-head"><h5>Photo &amp; label</h5></div>
 
-                @if (!string.IsNullOrWhiteSpace(Model.ImageURL))
+                @if (!string.IsNullOrWhiteSpace(asset.ImageURL))
                 {
-                    <img src="@Model.ImageURL" alt="@Model.AssetName" class="img-fluid rounded mb-3" style="width:100%; object-fit:cover;" />
+                    <img src="@asset.ImageURL" alt="@asset.AssetName" class="rounded mb-3"
+                         style="width:100%; height:190px; object-fit:cover; background:var(--sab-bg);" />
                 }
                 else
                 {
                     <div class="d-flex align-items-center justify-content-center mb-3"
-                         style="height:140px; background:var(--sab-bg); border:1px dashed var(--sab-border); border-radius:var(--sab-radius-sm); color:var(--sab-text-faint);">
+                         style="height:150px; background:var(--sab-bg); border:1px dashed var(--sab-border); border-radius:var(--sab-radius-sm); color:var(--sab-text-faint);">
                         No photo
                     </div>
                 }
 
-                <img src="@Url.Action("QrCode", new { id = Model.AssetID })" alt="QR code" width="120" height="120" class="d-block mb-2" />
-                <a href="@Url.Action("QrCode", new { id = Model.AssetID })" download="@($"{Model.AssetCode}-qr.png")"
-                   class="btn btn-outline-primary btn-sm w-100">Download QR</a>
+                <div class="d-flex align-items-center" style="gap:14px;">
+                    <img src="@Url.Action("QrCode", new { id = asset.AssetID })" alt="QR code for @asset.AssetCode"
+                         width="84" height="84" style="flex-shrink:0;" />
+                    <div style="min-width:0;">
+                        <div class="text-muted small mb-2">
+                            Generated from the asset code. Print it and stick it on the unit.
+                        </div>
+                        <a href="@Url.Action("QrCode", new { id = asset.AssetID })"
+                           download="@($"{asset.AssetCode}-qr.png")"
+                           class="btn btn-outline-primary btn-sm">Download QR</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
