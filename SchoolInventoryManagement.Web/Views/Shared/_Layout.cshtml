@@ -124,12 +124,6 @@
                         <span class="sab-nav-label">Notifications</span>
                     </a>
                 </li>
-                <li class="sab-nav-item">
-                    <a class="sab-nav-link @(isActive(new[]{"Home"}) && currentAction == "Privacy" ? "active" : "")"
-                       asp-controller="Home" asp-action="Privacy">
-                        <span class="sab-nav-label">Privacy</span>
-                    </a>
-                </li>
             </ul>
 
             <a class="sab-sidebar-cta" asp-controller="AssetRequests" asp-action="Create">
@@ -194,7 +188,11 @@
         </main>
 
         <footer class="border-top footer text-muted py-3 px-4">
-            &copy; 2026 - School Inventory Management - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @* No Privacy link here or in the sidebar: HomeController.Privacy is
+               [Authorize(Roles = Administrator)], so for every other role the
+               link only ever landed on Access Denied. The page itself is
+               unchanged and still reachable at /Home/Privacy. *@
+            &copy; 2026 - School Inventory Management
         </footer>
     </div>
 </div>
