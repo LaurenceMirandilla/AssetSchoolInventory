@@ -3,6 +3,7 @@
     ViewData["Title"] = "Notifications";
     var unreadOnly = ViewData["UnreadOnly"] as bool? ?? false;
     var hasUnread = Model.Any(n => !n.IsRead);
+    var unreadCount = Model.Count(n => !n.IsRead);
 }
 @if (TempData["StatusMessage"] != null)
 {
@@ -13,15 +14,21 @@
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Notifications</h2>
-
+<div class="sab-page-head">
+    <div>
+        <h2>Notifications</h2>
+        <p class="sab-page-sub">
+            @(unreadCount == 0 ? "Nothing unread." : $"{unreadCount} unread.")
+        </p>
+    </div>
     @if (hasUnread)
     {
-        <form asp-action="MarkAllRead" method="post" class="d-inline">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-outline-secondary btn-sm">Mark all as read</button>
-        </form>
+        <div class="sab-page-actions">
+            <form asp-action="MarkAllRead" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-secondary">Mark all as read</button>
+            </form>
+        </div>
     }
 </div>
 
@@ -32,15 +39,18 @@
     </li>
     <li class="nav-item">
         <a class="nav-link @(unreadOnly ? "active" : "")"
-           asp-action="Index" asp-route-unreadOnly="true">Unread</a>
+           asp-action="Index" asp-route-unreadOnly="true">Unread@(unreadCount > 0 ? $" · {unreadCount}" : "")</a>
     </li>
 </ul>
 
 @if (!Model.Any())
 {
-    <p class="text-muted">
-        @(unreadOnly ? "Nothing unread." : "You have no notifications.")
-    </p>
+    <div class="card">
+        <div class="sab-empty">
+            <div class="sab-empty-title">@(unreadOnly ? "Nothing unread" : "No notifications yet")</div>
+            <p>You are told when a request you made is decided, and when something is issued to or returned by you.</p>
+        </div>
+    </div>
 }
 else
 {
@@ -85,6 +95,7 @@ else
     </div>
 
     <p class="text-muted mt-3 small">
-        Showing the most recent @Model.Count notification@(Model.Count == 1 ? "" : "s").
+        Opening a notification marks it read in the same click. Approvals raise
+        one notification for the whole outcome, not one per step.
     </p>
 }

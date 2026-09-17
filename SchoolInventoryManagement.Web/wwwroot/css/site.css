@@ -94,6 +94,16 @@ a:hover { color: var(--sab-green-dark); text-decoration: underline; }
   letter-spacing: 0.02em;
   flex-shrink: 0;
 }
+
+/* The school crest, used in place of the lettermark. The PNG carries its own
+   transparency, so it needs no plate behind it -- any background here would
+   put the white box back that the artwork deliberately does not have. */
+.sab-brand-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 .sab-brand-text { line-height: 1.15; }
 .sab-brand-name { font-weight: 700; font-size: 0.92rem; color: var(--sab-text); }
 .sab-brand-sub { font-size: 0.68rem; letter-spacing: 0.08em; color: var(--sab-text-faint); text-transform: uppercase; }
@@ -319,22 +329,20 @@ a:hover { color: var(--sab-green-dark); text-decoration: underline; }
   border: 1px solid var(--sab-border);
   border-radius: var(--sab-radius);
   box-shadow: var(--sab-shadow);
-  padding: 18px 18px 14px;
+  padding: 15px 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 .report-tile-label {
   font-size: 0.8rem;
   color: var(--sab-text-muted);
   order: 2;
-  padding-top: 8px;
-  border-top: 1px solid var(--sab-border);
-  margin-top: 8px;
 }
 .report-tile-value {
-  font-size: 1.9rem;
+  font-size: 1.75rem;
   font-weight: 700;
+  line-height: 1.15;
   color: var(--sab-text);
   order: 1;
 }
@@ -342,7 +350,24 @@ a:hover { color: var(--sab-green-dark); text-decoration: underline; }
   font-size: 0.76rem;
   color: var(--sab-text-faint);
   order: 3;
+  padding-top: 8px;
+  border-top: 1px solid var(--sab-border);
+  margin-top: 9px;
 }
+
+/* A tile that filters the list below it. The selected one is tinted rather
+   than outlined, so it reads as "this is the current view", not "this one is
+   in an error state". */
+a.report-tile:hover {
+  border-color: var(--sab-green-border);
+  text-decoration: none;
+}
+.report-tile.active {
+  background: var(--sab-green-light);
+  border-color: var(--sab-green-border);
+}
+.report-tile.active .report-tile-value,
+.report-tile.active .report-tile-label { color: var(--sab-green-dark); }
 
 /* ==========================================================================
    Status pills — one class per enum value used across the app.
@@ -382,6 +407,11 @@ a:hover { color: var(--sab-green-dark); text-decoration: underline; }
 .status-lost             { background: var(--sab-red-bg);     color: var(--sab-red-text); }
 .status-damaged          { background: var(--sab-red-bg);     color: var(--sab-red-text); }
 .status-disposed         { background: var(--sab-gray-bg);    color: var(--sab-gray-text); }
+
+/* Users.Status is a plain string column, not an enum, but it renders through
+   the same pill so it needs the same two classes. */
+.status-active   { background: var(--sab-green-light); color: var(--sab-green-dark); }
+.status-inactive { background: var(--sab-gray-bg);     color: var(--sab-gray-text); }
 
 /* ConditionStatus (falls back cleanly if unstyled, but give the common ones) */
 .status-new       { background: var(--sab-green-light); color: var(--sab-green-dark); }
@@ -539,3 +569,272 @@ a:hover { color: var(--sab-green-dark); text-decoration: underline; }
 
 h2 { font-weight: 700; font-size: 1.35rem; color: var(--sab-text); }
 .text-muted { color: var(--sab-text-muted) !important; }
+
+
+/* ==========================================================================
+   Components from the Ste. Anne UI mockups
+   ========================================================================== */
+
+/* Page header: title, one muted line of context, actions pushed right.
+   Assets and Users already build this by hand with utility classes; this is
+   the same thing named, so the rest of the app can stop re-deriving it. */
+.sab-page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.sab-page-head h2 { margin-bottom: 2px; }
+.sab-page-sub {
+  color: var(--sab-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+.sab-page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Card header: title left, "View all" style link right, hairline under. */
+.sab-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.sab-card-head h5 { margin: 0; font-size: 1rem; font-weight: 600; }
+
+/* A bordered list row inside a card -- the repeating unit in "Needs your
+   attention", "Recent activity", the request queue and the history list. */
+.sab-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--sab-border);
+}
+.sab-row:last-child { border-bottom: 0; }
+.sab-row-title { font-weight: 600; }
+.sab-row-meta { color: var(--sab-text-muted); font-size: 0.82rem; }
+
+/* Right-rail explainer boxes. The mockups lean on these to say why a screen
+   behaves the way it does, rather than leaving the rule to be discovered. */
+.sab-callout {
+  border-radius: var(--sab-radius);
+  padding: 14px 16px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  background: var(--sab-green-light);
+  border: 1px solid var(--sab-green-border);
+  color: var(--sab-green-dark);
+}
+.sab-callout-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.sab-callout-warn {
+  background: var(--sab-amber-bg);
+  border-color: #f3e3c2;
+  color: var(--sab-amber-text);
+}
+.sab-callout-danger {
+  background: var(--sab-red-bg);
+  border-color: #f6cfcd;
+  color: var(--sab-red-text);
+}
+
+/* Asset codes read as identifiers, not prose -- the mockups set every one of
+   them in mono so SAB-IT-0231 scans as a label you could type back in. */
+.sab-code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--sab-text-muted);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Inline avatars inside table rows and lists are the soft variant; the solid
+   green .sab-avatar stays for the signed-in user in the top bar. */
+.sab-avatar-soft {
+  background: var(--sab-green-light);
+  color: var(--sab-green-dark);
+  border: 1px solid var(--sab-green-border);
+}
+.sab-avatar-sm { width: 26px; height: 26px; font-size: 0.66rem; }
+
+/* Segmented filter ("Active / Inactive / All", "Outstanding only"). */
+.sab-seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.sab-seg > a, .sab-seg > button {
+  border: 1px solid var(--sab-border);
+  background: var(--sab-surface);
+  color: var(--sab-text);
+  border-radius: var(--sab-radius-sm);
+  padding: 6px 14px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.sab-seg > a:hover, .sab-seg > button:hover {
+  background: var(--sab-bg);
+  text-decoration: none;
+}
+.sab-seg > .active {
+  background: var(--sab-green-light);
+  border-color: var(--sab-green-border);
+  color: var(--sab-green-dark);
+}
+
+/* Reports sub-navigation, the left-hand list in the reports mockup. */
+.sab-subnav { list-style: none; margin: 0; padding: 0; }
+.sab-subnav a {
+  display: block;
+  padding: 9px 12px;
+  border-radius: var(--sab-radius-sm);
+  color: var(--sab-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.sab-subnav a:hover { background: var(--sab-bg); color: var(--sab-text); text-decoration: none; }
+.sab-subnav a.active {
+  background: var(--sab-green-light);
+  color: var(--sab-green-dark);
+  font-weight: 600;
+}
+
+/* Empty states -- the app had no shared treatment, so each page invented one. */
+.sab-empty {
+  text-align: center;
+  padding: 44px 20px;
+}
+.sab-empty-title { font-weight: 600; margin-bottom: 4px; }
+.sab-empty p { color: var(--sab-text-muted); margin-bottom: 16px; }
+
+/* Three links in one table cell should not be styled three different ways.
+   Bootstrap underlines .btn-link by default; the row actions here are links
+   that happen to post, so they match their neighbours. */
+.table .btn-link { text-decoration: none; }
+.table .btn-link:hover { text-decoration: underline; }
+
+
+/* ==========================================================================
+   Table card -- the mockups never put a bare table on the page background.
+   The toolbar, the rows and the pager are one raised surface.
+   ========================================================================== */
+
+.sab-table-card {
+  background: var(--sab-surface);
+  border: 1px solid var(--sab-border);
+  border-radius: var(--sab-radius);
+  box-shadow: var(--sab-shadow);
+  overflow: hidden;
+}
+.sab-table-card > .table { margin-bottom: 0; }
+
+/* Filters and the result count, in a strip above the rows. */
+.sab-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--sab-border);
+}
+.sab-table-toolbar .form-control,
+.sab-table-toolbar .form-select {
+  height: 36px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 0.86rem;
+  border-radius: 999px;
+}
+.sab-table-toolbar .form-select { padding-right: 30px; }
+.sab-table-toolbar .btn { height: 36px; padding-top: 5px; padding-bottom: 5px; }
+.sab-table-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sab-table-count { color: var(--sab-text-muted); font-size: 0.84rem; margin-left: auto; }
+
+/* Pager, on the same surface as the rows it pages through. */
+.sab-table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--sab-border);
+}
+
+/* Inside a card the rows carry the surface, so the zebra striping and the
+   table's own edge-to-edge borders work against it rather than with it. */
+/* No zebra inside a card: the mockup separates rows with a hairline, and
+   striping on top of a raised surface reads as two competing backgrounds.
+   Bootstrap paints the stripe with an inset box-shadow fed by its own custom
+   properties, so clearing a background alone does nothing -- the shadow and
+   both properties have to go. */
+.sab-table-card .table > tbody > tr > * {
+  --bs-table-accent-bg: transparent;
+  --bs-table-bg-type: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
+.sab-table-card .table > tbody > tr { transition: background-color 90ms ease-in-out; }
+.sab-table-card .table > tbody > tr:hover > * { background-color: var(--sab-bg); }
+.sab-table-card .table thead th {
+  padding: 12px 16px;
+  background: var(--sab-surface);
+}
+.sab-table-card .table td { padding: 13px 16px; }
+
+/* .table-sm asked to be compact; the card padding above was overriding it,
+   which made the report breakdowns as tall as the main asset list. */
+.sab-table-card .table-sm > thead > tr > th,
+.sab-table-card .table-sm > tbody > tr > td { padding: 8px 16px; }
+.sab-table-card .table > tbody > tr:last-child > td { border-bottom: 0; }
+.sab-table-card .table > :not(:first-child) { border-top: 0; }
+
+
+/* Title strip on a table card -- the mockup labels each breakdown on the card
+   itself rather than with a bare heading floating above a bare table. */
+.sab-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--sab-border);
+}
+.sab-table-head h4,
+.sab-table-head h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sab-text);
+}
+
+/* Filters that need their labels kept (date ranges, mostly) sit on their own
+   card rather than loose on the page background. */
+.sab-filter-card {
+  background: var(--sab-surface);
+  border: 1px solid var(--sab-border);
+  border-radius: var(--sab-radius);
+  box-shadow: var(--sab-shadow);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.sab-filter-card .form-label { margin-bottom: 4px; }
+
+/* Eight tiles wrapping to seven-and-one looks like a mistake. Fixed tracks
+   keep the inventory summary to even rows at every breakpoint. */
+@media (min-width: 768px) {
+  .report-tiles.is-quad { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1200px) {
+  .report-tiles.is-quad { grid-template-columns: repeat(4, 1fr); }
+}

@@ -5,10 +5,85 @@
 
 @if (!Model.IsReportsViewer)
 {
-    <h2>Welcome, @Model.DisplayName</h2>
-    <p class="text-muted">
-        Use <strong>My Requests</strong> in the sidebar to submit or track a Borrow or Transfer request.
-    </p>
+    @* The personal half of the dashboard. Same tiles, cards and type scale
+       as the inventory half below -- only the figures differ, because these
+       roles are scoped to their own records. *@
+    <h2 class="mb-0">Good morning, @Model.DisplayName</h2>
+    <p class="text-muted mb-3">@DateTime.Now.ToString("dddd, d MMMM yyyy")</p>
+
+    <div class="report-tiles">
+        <a asp-controller="Assets" asp-action="MyAssets" class="report-tile text-decoration-none">
+            <span class="report-tile-value">@Model.AssetsInMyCare</span>
+            <span class="report-tile-label">Assets in my care</span>
+            <span class="report-tile-note">signed out to you right now</span>
+        </a>
+        <a asp-controller="AssetRequests" asp-action="MyRequests" class="report-tile text-decoration-none">
+            <span class="report-tile-value">@Model.MyOpenRequestCount</span>
+            <span class="report-tile-label">Open requests</span>
+            <span class="report-tile-note">pending or approved</span>
+        </a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">My recent requests</h5>
+                        <a asp-controller="AssetRequests" asp-action="MyRequests" class="small">View all</a>
+                    </div>
+
+                    @if (Model.MyRecentRequests.Any())
+                    {
+                        @foreach (var request in Model.MyRecentRequests)
+                        {
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <div>
+                                    <div class="fw-semibold">
+                                        @if (request.RequestType == SchoolInventoryManagement.DAL.Entities.Enums.RequestType.Borrow)
+                                        {
+                                            @(request.ModelName ?? "—")
+                                        }
+                                        else
+                                        {
+                                            @($"{request.AssetCode} → {request.RequestedLocationName}")
+                                        }
+                                    </div>
+                                    <div class="text-muted small">
+                                        <span class="status-pill status-@request.RequestType.ToString().ToLowerInvariant()">@request.RequestType</span>
+                                        <span class="ms-1">@request.RequestDate.ToString("MMM d, yyyy")</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center" style="gap:12px;">
+                                    <span class="status-pill status-@request.RequestStatus.ToString().ToLowerInvariant()">@request.RequestStatus</span>
+                                    <a asp-controller="AssetRequests" asp-action="Details" asp-route-id="@request.RequestID" class="small">View</a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">You haven't submitted any requests yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-1">Need something?</h5>
+                    <p class="text-muted small">
+                        <strong>Borrow</strong> asks for a model and lets staff pick the
+                        unit. <strong>Transfer</strong> moves a specific unit to another
+                        location. Either way an approver decides.
+                    </p>
+                    <a asp-controller="AssetRequests" asp-action="Create" class="btn btn-primary w-100">+ New Request</a>
+                    <a asp-controller="Assets" asp-action="MyAssets" class="btn btn-outline-secondary w-100 mt-2">See what I'm holding</a>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 else
 {

@@ -11,7 +11,7 @@
 <nav class="mb-2" style="font-size:0.85rem;">
     <a asp-action="Index" class="text-muted">Assets</a>
     <span class="text-muted mx-1">&rsaquo;</span>
-    <span class="text-muted">@Model.AssetCode</span>
+    <span class="sab-code">@Model.AssetCode</span>
 </nav>
 
 <div class="d-flex justify-content-between align-items-start flex-wrap mb-1" style="gap:12px;">
@@ -21,7 +21,7 @@
             <span class="status-pill status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span>
         </h2>
         <p class="text-muted mb-3">
-            @Model.AssetCode &middot; @Model.ModelName
+            <span class="sab-code">@Model.AssetCode</span> &middot; @Model.ModelName
             @if (!string.IsNullOrWhiteSpace(Model.SerialNumber))
             {
                 <text>&middot; Serial @Model.SerialNumber</text>
@@ -144,7 +144,7 @@
                 <div class="card-body">
                     <h6 class="text-muted small mb-3" style="text-transform:uppercase; letter-spacing:.04em;">Current holder</h6>
                     <div class="d-flex align-items-center" style="gap:10px;">
-                        <span class="sab-avatar">
+                        <span class="sab-avatar sab-avatar-soft">
                             @string.Concat(Model.AssignedUserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(p => p[0])).ToUpperInvariant()
                         </span>
                         <div>
