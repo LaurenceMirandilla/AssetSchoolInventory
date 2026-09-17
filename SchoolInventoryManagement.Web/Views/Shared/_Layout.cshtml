@@ -27,6 +27,15 @@
     Func<string[], bool> isActive = controllers =>
         controllers.Any(c => string.Equals(c, currentController, StringComparison.OrdinalIgnoreCase));
 
+    // My Requests and Approvals are both AssetRequestsController, so the
+    // controller name alone cannot tell them apart -- it lit both up at once.
+    // Split on the action instead: the approver screens are Approvals,
+    // everything else in the controller is the requester's own view.
+    var approvalActions = new[] { "Pending", "Approve", "ApproveBorrow", "ApproveTransfer", "Reject" };
+    var inRequests = isActive(new[] { "AssetRequests" });
+    var onApprovals = inRequests
+        && approvalActions.Contains(currentAction, StringComparer.OrdinalIgnoreCase);
+
     // Line icons matching the mockup's sidebar. 18x18, currentColor, so the
     // .sab-nav-link active and hover colours carry straight through.
     Func<string, string> navIcon = name =>
@@ -84,7 +93,7 @@
                     </a>
                 </li>
                 <li class="sab-nav-item">
-                    <a class="sab-nav-link @(isActive(new[]{"AssetRequests"}) ? "active" : "")" asp-controller="AssetRequests" asp-action="MyRequests">
+                    <a class="sab-nav-link @(inRequests && !onApprovals ? "active" : "")" asp-controller="AssetRequests" asp-action="MyRequests">
                         <span class="sab-nav-label">@Html.Raw(navIcon("requests"))My Requests</span>
                     </a>
                 </li>
@@ -93,7 +102,7 @@
                 {
                     <li class="sab-nav-heading">Approvals</li>
                     <li class="sab-nav-item">
-                        <a class="sab-nav-link @(isActive(new[]{"AssetRequests"}) ? "active" : "")" asp-controller="AssetRequests" asp-action="Pending">
+                        <a class="sab-nav-link @(onApprovals ? "active" : "")" asp-controller="AssetRequests" asp-action="Pending">
                             <span class="sab-nav-label">@Html.Raw(navIcon("approvals"))Approvals</span>
                         </a>
                     </li>
